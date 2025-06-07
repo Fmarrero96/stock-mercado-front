@@ -1,0 +1,50 @@
+form {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  
+    select, input {
+      padding: 4px;
+    }
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+  
+    th {
+      background-color: #f3f3f3;
+    }
+  }
+  
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    box-shadow: 0 0 10px #00000055;
+    z-index: 9999;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  }
+  
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fadeout {
+    from { opacity: 1; }
+    to { opacity: 0; transform: translateY(20px); }
+  }
+  

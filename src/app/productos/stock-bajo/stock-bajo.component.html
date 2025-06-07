@@ -1,0 +1,12 @@
+<h3>⚠️ Productos con stock bajo</h3>
+
+<p *ngIf="error">{{ error }}</p>
+<p *ngIf="cargando">Cargando...</p>
+
+<ul *ngIf="productos.length > 0">
+  <li *ngFor="let p of productos">
+    {{ p.nombre }} ({{ p.stock }} unidades)
+  </li>
+</ul>
+
+<p *ngIf="!cargando && productos.length === 0">Todos los productos tienen stock suficiente ✅</p>

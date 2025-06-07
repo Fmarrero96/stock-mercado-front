@@ -1,0 +1,45 @@
+<h2>Registrar venta</h2>
+
+<form [formGroup]="formBusqueda" (ngSubmit)="agregarProducto()">
+  <label>Producto</label>
+  <select formControlName="productoId" required>
+    <option value="">Seleccione</option>
+    <option *ngFor="let p of productos" [value]="p.id">{{ p.nombre }}</option>
+  </select>
+
+  <label>Cantidad</label>
+  <input type="number" formControlName="cantidad" min="1" required />
+
+  <button type="submit">Agregar</button>
+</form>
+
+<table *ngIf="seleccionados.length > 0">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Precio</th>
+      <th>Cantidad</th>
+      <th>Subtotal</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of seleccionados; let i = index">
+      <td>{{ item.producto.nombre }}</td>
+      <td>{{ item.producto.precioVenta | currency:'ARS' }}</td>
+      <td>{{ item.cantidad }}</td>
+      <td>{{ item.subtotal | currency:'ARS' }}</td>
+      <td><button (click)="quitarItem(i)">🗑</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="seleccionados.length > 0">
+  <p><strong>Total:</strong> {{ total | currency:'ARS' }}</p>
+  <button (click)="confirmarVenta()">Confirmar venta</button>
+</div>
+
+
+<div *ngIf="mostrarToast" class="toast">
+    {{ toastMensaje }}
+  </div>

@@ -1,0 +1,78 @@
+<h2>Proveedores</h2>
+
+<!-- Filtro -->
+<input type="text" [(ngModel)]="termino" (input)="aplicarFiltro()" placeholder="Buscar por nombre o email..." />
+
+<!-- Botón para agregar -->
+<button (click)="abrirModal()">➕ Nuevo proveedor</button>
+
+<p *ngIf="error" class="error">{{ error }}</p>
+
+<!-- Tabla de proveedores -->
+<table *ngIf="filtrados.length > 0; else sinProveedores">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Teléfono</th>
+      <th>Dirección</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of filtrados">
+      <!-- Fila editable -->
+      <ng-container *ngIf="editandoId === p.id; else verFila">
+        <td><input [formControl]="$any(formEdicion.get('nombre'))" /></td>
+        <td><input [formControl]="$any(formEdicion.get('email'))" /></td>
+        <td><input [formControl]="$any(formEdicion.get('telefono'))" /></td>
+        <td><input [formControl]="$any(formEdicion.get('direccion'))" /></td>
+        <td>
+          <button (click)="guardarEdicion(p.id)">💾</button>
+          <button (click)="cancelarEdicion()">❌</button>
+        </td>
+      </ng-container>
+
+      <!-- Fila normal -->
+      <ng-template #verFila>
+        <td>{{ p.nombre }}</td>
+        <td>{{ p.email }}</td>
+        <td>{{ p.telefono }}</td>
+        <td>{{ p.direccion }}</td>
+        <td>
+          <button (click)="comenzarEdicion(p)">✏️</button>
+        </td>
+      </ng-template>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #sinProveedores>
+  <p>No hay proveedores registrados.</p>
+</ng-template>
+
+<!-- Modal -->
+<div class="modal" *ngIf="mostrarModal">
+  <div class="modal-contenido">
+    <h3>Nuevo Proveedor</h3>
+
+    <form [formGroup]="formAlta" (ngSubmit)="guardarProveedor()">
+      <label>Nombre</label>
+      <input formControlName="nombre" />
+
+      <label>Email</label>
+      <input formControlName="email" type="email" />
+
+      <label>Teléfono</label>
+      <input formControlName="telefono" />
+
+      <label>Dirección</label>
+      <input formControlName="direccion" />
+
+      <div class="acciones">
+        <button type="submit" [disabled]="formAlta.invalid">✅ Guardar</button>
+        <button type="button" (click)="cerrarModal()">❌ Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>

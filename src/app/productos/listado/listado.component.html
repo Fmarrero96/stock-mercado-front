@@ -1,0 +1,94 @@
+<h2>Listado de productos</h2>
+
+<input type="text" [(ngModel)]="termino" (input)="filtrar()" placeholder="Buscar por nombre o código..." class="buscador" />
+<button (click)="abrirAlta()">➕ Nuevo producto</button>
+
+<p *ngIf="error" class="error">{{ error }}</p>
+
+<table *ngIf="filtrados.length > 0; else sinProductos">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Código</th>
+      <th>Stock</th>
+      <th>Base</th>
+      <th>Venta</th>
+      <th>Ganancia</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of filtrados">
+      <ng-container *ngIf="editandoId === p.id; else verFila">
+        <td><input [formControl]="formEdicion.controls.nombre" /></td>
+        <td><input [formControl]="formEdicion.controls.codigoBarra" /></td>
+        <td><input type="number" [formControl]="formEdicion.controls.stock" /></td>
+        <td><input type="number" [formControl]="formEdicion.controls.precioCompra" /></td>
+        <td><input type="number" [formControl]="formEdicion.controls.precioVenta" /></td>
+        <td><input type="number" [formControl]="formEdicion.controls.porcentajeGanancia" /></td>
+        <td><input type="checkbox" [formControl]="formEdicion.controls.estado" /></td>
+        <td>
+          <button (click)="guardarEdicion(p.id!)">💾</button>
+          <button (click)="cancelarEdicion()">❌</button>
+        </td>
+      </ng-container>
+      <ng-template #verFila>
+        <td>{{ p.nombre }}</td>
+        <td>{{ p.codigoBarra }}</td>
+        <td>{{ p.stock }}</td>
+        <td>{{ p.precioCompra | currency:'ARS' }}</td>
+        <td>{{ p.precioVenta | currency:'ARS' }}</td>
+        <td>{{ p.porcentajeGanancia }}%</td>
+        <td>{{ p.estado ? 'Activo' : 'Inactivo' }}</td>
+        <td>
+          <button (click)="comenzarEdicion(p)">✏️</button>
+        </td>
+      </ng-template>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #sinProductos>
+  <p>No hay productos.</p>
+</ng-template>
+
+
+<!-- MODAL de alta -->
+<div class="modal" *ngIf="mostrarAlta">
+    <div class="modal-content">
+      <h3>Nuevo producto</h3>
+  
+      <form [formGroup]="formAlta" (ngSubmit)="guardarAlta()">
+        <label>Nombre</label>
+        <input formControlName="nombre" />
+  
+        <label>Código de barra</label>
+        <input formControlName="codigoBarra" />
+  
+        <label>Stock</label>
+        <input type="number" formControlName="stock" />
+  
+        <label>Precio base</label>
+        <input type="number" formControlName="precioBase" />
+  
+        <label>Precio venta</label>
+        <input type="number" formControlName="precioVenta" />
+  
+        <label>Ganancia (%)</label>
+        <input type="number" formControlName="porcentajeGanancia" />
+  
+        <label>Estado</label>
+        <select formControlName="estado">
+          <option value="activo">Activo</option>
+          <option value="inactivo">Inactivo</option>
+        </select>
+  
+        <div class="acciones">
+          <button type="submit">Guardar</button>
+          <button type="button" (click)="cerrarAlta()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  

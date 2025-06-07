@@ -1,0 +1,60 @@
+.filtros {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+  
+    input, select {
+      padding: 4px 8px;
+    }
+  }
+  
+
+//MODAL
+
+.modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
+  
+  .modal-contenido {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+  
+      .acciones {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+  }
+  
+  //PAGINACION
+  .paginacion {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  
+    button {
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+  
+    span {
+      font-weight: bold;
+    }
+  }
+  

@@ -1,0 +1,30 @@
+<h2>{{ esEdicion ? 'Editar Usuario' : 'Nuevo Usuario' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="guardar()">
+  <label>Nombre</label>
+  <input formControlName="nombre" type="text" />
+
+  <label>Email</label>
+  <input formControlName="email" type="email" />
+
+  <label>Contraseña</label>
+  <input formControlName="password" type="password" [required]="!esEdicion" />
+
+  <label>Rol</label>
+  <select formControlName="rolId">
+    <option value="">Seleccione un rol</option>
+    <option *ngFor="let r of rolesDisponibles" [value]="r.id">{{ r.nombre }}</option>
+  </select>
+
+  <label>Estado</label>
+  <select formControlName="estado">
+    <option value="activo">Activo</option>
+    <option value="inactivo">Inactivo</option>
+  </select>
+
+  <button type="submit" [disabled]="form.invalid">
+    {{ esEdicion ? 'Guardar cambios' : 'Crear usuario' }}
+  </button>
+
+  <p *ngIf="error" class="error">{{ error }}</p>
+</form>

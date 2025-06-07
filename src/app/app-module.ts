@@ -1,8 +1,12 @@
-import { NgModule, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
-import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
+import { ProductosModule } from './productos/productos-module';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { VentasModule } from './ventas/ventas-module';
 
 @NgModule({
   declarations: [
@@ -10,12 +14,15 @@ import { App } from './app';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    HttpClientModule,
+    AppRoutingModule,
+    ProductosModule,
+    ReactiveFormsModule,
+    FormsModule,
+    VentasModule
   ],
   providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
-    provideClientHydration(withEventReplay())
+    provideClientHydration()
   ],
   bootstrap: [App]
 })

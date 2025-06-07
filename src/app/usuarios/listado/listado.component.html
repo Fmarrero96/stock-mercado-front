@@ -1,0 +1,76 @@
+<h2>Usuarios</h2>
+
+<button (click)="abrirModal()">➕ Nuevo usuario</button>
+
+<!-- Modal de alta -->
+<div class="modal" *ngIf="mostrarModal">
+  <div class="modal-contenido">
+    <h3>Nuevo Usuario</h3>
+
+    <form [formGroup]="formAlta" (ngSubmit)="guardarNuevoUsuario()">
+      <label>Nombre</label>
+      <input formControlName="nombre" type="text" />
+
+      <label>Email</label>
+      <input formControlName="email" type="email" />
+
+      <label>Contraseña</label>
+      <input formControlName="password" type="password" />
+
+      <label>Rol</label>
+      <select formControlName="rolId">
+        <option value="">Seleccione un rol</option>
+        <option *ngFor="let r of rolesDisponibles" [value]="r.id">{{ r.nombre }}</option>
+      </select>
+
+      <div class="acciones">
+        <button type="submit" [disabled]="formAlta.invalid">✅ Guardar</button>
+        <button type="button" (click)="cerrarModal()">❌ Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<div class="filtros">
+  <input type="text" [(ngModel)]="termino" (input)="aplicarFiltros()" placeholder="Buscar por nombre o email..." />
+  
+  <select [(ngModel)]="rol" (change)="aplicarFiltros()">
+    <option value="">Todos los roles</option>
+    <option *ngFor="let r of rolesDisponibles" [value]="r.id">{{ r.nombre }}</option>
+  </select>
+</div>
+
+<p *ngIf="error" class="error">{{ error }}</p>
+
+<table *ngIf="filtrados.length > 0; else sinUsuarios">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Email</th>
+      <th>Rol</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let u of usuariosPaginados">
+      <td>{{ u.nombre }}</td>
+      <td>{{ u.email }}</td>
+      <td>{{ u.rol?.nombre }}</td>
+      <td>
+        <a [routerLink]="['/usuarios/editar', u.id]">✏️ Editar</a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="paginacion" *ngIf="totalPaginas > 1">
+    <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1">⬅️ Anterior</button>
+    <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+    <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual === totalPaginas">Siguiente ➡️</button>
+</div>
+
+<ng-template #sinUsuarios>
+  <p>No hay usuarios que coincidan con los filtros.</p>
+</ng-template>
