@@ -75,80 +75,104 @@
 
     <div class="modal-body">
       <form [formGroup]="productoForm">
-        <div class="form-group">
-          <label for="codigo">Código</label>
-          <input 
-            id="codigo" 
-            type="text" 
-            formControlName="codigo"
-            [class.error]="productoForm.get('codigo')?.invalid && productoForm.get('codigo')?.touched"
-          >
-          <span class="error-message" *ngIf="productoForm.get('codigo')?.invalid && productoForm.get('codigo')?.touched">
-            El código es requerido
-          </span>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="codigoBarra">Código de barras</label>
+            <input 
+              id="codigoBarra" 
+              type="text" 
+              formControlName="codigoBarra"
+              [class.error]="productoForm.get('codigoBarra')?.invalid && productoForm.get('codigoBarra')?.touched"
+            >
+            <span class="error-message" *ngIf="productoForm.get('codigoBarra')?.invalid && productoForm.get('codigoBarra')?.touched">
+              El código de barras es requerido
+            </span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="nombre">Nombre</label>
-          <input 
-            id="nombre" 
-            type="text" 
-            formControlName="nombre"
-            [class.error]="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched"
-          >
-          <span class="error-message" *ngIf="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched">
-            El nombre es requerido
-          </span>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input 
+              id="nombre" 
+              type="text" 
+              formControlName="nombre"
+              [class.error]="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched"
+            >
+            <span class="error-message" *ngIf="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched">
+              El nombre es requerido
+            </span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="descripcion">Descripción</label>
-          <input 
-            id="descripcion" 
-            type="text" 
-            formControlName="descripcion"
-          >
+        <div class="form-row">
+          <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <input 
+              id="descripcion" 
+              type="text"
+              formControlName="descripcion"
+              placeholder="Ingrese una descripción del producto"
+            >
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="precio">Precio</label>
-          <input 
-            id="precio" 
-            type="number" 
-            formControlName="precio"
-            [class.error]="productoForm.get('precio')?.invalid && productoForm.get('precio')?.touched"
-          >
-          <span class="error-message" *ngIf="productoForm.get('precio')?.invalid && productoForm.get('precio')?.touched">
-            El precio debe ser mayor a 0
-          </span>
+        <h4 class="section-title">Precios</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="precioCompra">Precio de compra</label>
+            <input 
+              id="precioCompra" 
+              type="number" 
+              formControlName="precioCompra"
+              [class.error]="productoForm.get('precioCompra')?.invalid && productoForm.get('precioCompra')?.touched"
+            >
+            <span class="error-message" *ngIf="productoForm.get('precioCompra')?.invalid && productoForm.get('precioCompra')?.touched">
+              El precio de compra debe ser mayor a 0
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="precioVenta">Precio de venta</label>
+            <input 
+              id="precioVenta" 
+              type="number" 
+              formControlName="precioVenta"
+              [class.error]="productoForm.get('precioVenta')?.invalid && productoForm.get('precioVenta')?.touched"
+            >
+            <span class="error-message" *ngIf="productoForm.get('precioVenta')?.invalid && productoForm.get('precioVenta')?.touched">
+              El precio de venta debe ser mayor a 0
+            </span>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="stock">Stock</label>
-          <input 
-            id="stock" 
-            type="number" 
-            formControlName="stock"
-            [class.error]="productoForm.get('stock')?.invalid && productoForm.get('stock')?.touched"
-          >
-          <span class="error-message" *ngIf="productoForm.get('stock')?.invalid && productoForm.get('stock')?.touched">
-            El stock debe ser mayor o igual a 0
-          </span>
-        </div>
+        <h4 class="section-title">Inventario</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stock">Stock actual</label>
+            <input 
+              id="stock" 
+              type="number" 
+              formControlName="stock"
+              [class.error]="productoForm.get('stock')?.invalid && productoForm.get('stock')?.touched"
+            >
+            <span class="error-message" *ngIf="productoForm.get('stock')?.invalid && productoForm.get('stock')?.touched">
+              El stock debe ser mayor o igual a 0
+            </span>
+          </div>
 
-        <div class="form-group">
-          <label for="categoria">Categoría</label>
-          <select 
-            id="categoria" 
-            formControlName="categoria"
-            [class.error]="productoForm.get('categoria')?.invalid && productoForm.get('categoria')?.touched"
-          >
-            <option value="">Seleccione una categoría</option>
-            <option *ngFor="let cat of categorias" [value]="cat">{{cat}}</option>
-          </select>
-          <span class="error-message" *ngIf="productoForm.get('categoria')?.invalid && productoForm.get('categoria')?.touched">
-            La categoría es requerida
-          </span>
+          <div class="form-group">
+            <label for="stockMinimo">Stock mínimo</label>
+            <input 
+              id="stockMinimo" 
+              type="number" 
+              formControlName="stockMinimo"
+              [class.error]="productoForm.get('stockMinimo')?.invalid && productoForm.get('stockMinimo')?.touched"
+            >
+            <span class="error-message" *ngIf="productoForm.get('stockMinimo')?.invalid && productoForm.get('stockMinimo')?.touched">
+              El stock mínimo debe ser mayor o igual a 0
+            </span>
+          </div>
         </div>
       </form>
     </div>

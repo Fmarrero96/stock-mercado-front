@@ -30,44 +30,50 @@ form {
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   margin-bottom: 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  align-items: end;
+  width: 90%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 
-  label {
-    display: block;
-    color: $text-primary;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-  }
+  .form-group {
+    margin: 0 auto;
+    max-width: 450px;
 
-  .search-input {
-    position: relative;
-
-    input {
-      width: 100%;
-      padding: 0.75rem 1rem;
-      padding-right: 2.5rem;
-      border: 1px solid $gray-medium;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      transition: all 0.2s;
-
-      &:focus {
-        outline: none;
-        border-color: $primary;
-        box-shadow: 0 0 0 3px rgba($primary, 0.1);
-      }
+    label {
+      display: block;
+      color: $text-primary;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
     }
 
-    i {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: $gray-dark;
-      font-size: 1.2rem;
+    .search-input {
+      position: relative;
+      width: 100%;
+
+      input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        padding-right: 2.5rem;
+        border: 1px solid $gray-medium;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: $primary;
+          box-shadow: 0 0 0 3px rgba($primary, 0.1);
+        }
+      }
+
+      i {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $gray-dark;
+        font-size: 1.2rem;
+      }
     }
   }
 

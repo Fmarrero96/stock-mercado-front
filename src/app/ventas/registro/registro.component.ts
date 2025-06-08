@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { ProductoService, Producto } from '../../productos/producto.service';
+import { ProductoService } from '../../productos/producto.service';
+import { Producto ,  ProductoCrearDTO} from '../../productos/producto.model';
 import { VentaService, DetalleVentaDTO, VentaDTO } from '../venta.service';
 
 interface ItemVenta {

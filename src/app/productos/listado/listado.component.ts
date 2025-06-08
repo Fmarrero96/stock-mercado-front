@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ProductoService, Producto } from '../producto.service';
+import { ProductoService } from '../producto.service';
+import { Producto, ProductoCrearDTO } from '../producto.model';
 
 @Component({
   selector: 'app-producto-listado',
@@ -27,11 +28,13 @@ export class ProductoListadoComponent implements OnInit {
     private productoService: ProductoService
   ) {
     this.productoForm = this.fb.group({
-      codigo: ['', [Validators.required]],
+      codigoBarra: ['', [Validators.required]],
       nombre: ['', [Validators.required]],
       descripcion: [''],
-      precio: [0, [Validators.required, Validators.min(0)]],
+      precioCompra: [0, [Validators.required, Validators.min(0)]],
+      precioVenta: [0, [Validators.required, Validators.min(0)]],
       stock: [0, [Validators.required, Validators.min(0)]],
+      stockMinimo: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -69,8 +72,10 @@ export class ProductoListadoComponent implements OnInit {
     this.modoEdicion = false;
     this.productoEditando = null;
     this.productoForm.reset({
-      precio: 0,
-      stock: 0
+      precioCompra: 0,
+      precioVenta: 0,
+      stock: 0,
+      stockMinimo: 0
     });
     this.mostrarModal = true;
   }
@@ -93,23 +98,43 @@ export class ProductoListadoComponent implements OnInit {
     if (this.productoForm.invalid) return;
 
     this.guardando = true;
-    const producto = this.productoForm.value;
+    const productoData = this.productoForm.value;
 
-    const operacion = this.modoEdicion && this.productoEditando
-      ? this.productoService.actualizarProducto(this.productoEditando.id, producto)
-      : this.productoService.crearProducto(producto);
+    if (this.modoEdicion && this.productoEditando) {
+      this.productoService.actualizarProducto(this.productoEditando.id, productoData).subscribe({
+        next: () => {
+          this.cargarProductos();
+          this.cerrarModal();
+          this.guardando = false;
+        },
+        error: (error) => {
+          this.error = 'Error al actualizar el producto: ' + error.message;
+          this.guardando = false;
+        }
+      });
+    } else {
+      const nuevoProducto: ProductoCrearDTO = {
+        nombre: productoData.nombre,
+        descripcion: productoData.descripcion,
+        codigoBarra: productoData.codigoBarra,
+        precioCompra: productoData.precioCompra,
+        precioVenta: productoData.precioVenta,
+        stock: productoData.stock,
+        stockMinimo: productoData.stockMinimo
+      };
 
-    operacion.subscribe({
-      next: () => {
-        this.cargarProductos();
-        this.cerrarModal();
-        this.guardando = false;
-      },
-      error: (error) => {
-        this.error = 'Error al guardar el producto: ' + error.message;
-        this.guardando = false;
-      }
-    });
+      this.productoService.crearProducto(nuevoProducto).subscribe({
+        next: () => {
+          this.cargarProductos();
+          this.cerrarModal();
+          this.guardando = false;
+        },
+        error: (error) => {
+          this.error = 'Error al crear el producto: ' + error.message;
+          this.guardando = false;
+        }
+      });
+    }
   }
 
   eliminarProducto(id: number): void {
