@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProductoService, Producto } from '../../productos/producto.service';
 import { VentaService, DetalleVentaDTO, VentaDTO } from '../venta.service';
@@ -16,49 +16,95 @@ interface ItemVenta {
   styleUrls: ['./registro.component.scss']
 })
 export class RegistroComponent implements OnInit {
-  productos: Producto[] = [];
   seleccionados: ItemVenta[] = [];
   total = 0;
   formBusqueda!: FormGroup;
   toastMensaje = '';
   mostrarToast = false;
+  productoEncontrado: Producto | null = null;
+  @ViewChild('codigoBarrasInput') codigoBarrasInput!: ElementRef;
 
-  constructor(private productoService: ProductoService, private fb: FormBuilder, private ventaService: VentaService) {}
+  constructor(
+    private productoService: ProductoService, 
+    private fb: FormBuilder, 
+    private ventaService: VentaService
+  ) {}
 
   ngOnInit(): void {
-    this.productoService.getProductos().subscribe({
-      next: data => this.productos = data,
-      error: () => alert('Error al cargar productos')
+    this.formBusqueda = this.fb.group({
+      codigoBarras: ['']
     });
 
-    this.formBusqueda = this.fb.group({
-      productoId: [''],
-      cantidad: [1]
+    // Suscribirse a cambios en el código de barras
+    this.formBusqueda.get('codigoBarras')?.valueChanges.subscribe(codigo => {
+      if (codigo && codigo.length >= 3) {
+        this.buscarProducto(codigo);
+      } else {
+        this.productoEncontrado = null;
+      }
     });
   }
 
-  agregarProducto(): void {
-    const id = this.formBusqueda.value.productoId;
-    const cantidad = this.formBusqueda.value.cantidad;
+  buscarProducto(codigo: string): void {
+    this.productoService.buscarPorCodigo(codigo).subscribe({
+      next: (producto: Producto) => {
+        this.productoEncontrado = producto;
+        this.agregarProductoEncontrado();
+      },
+      error: () => {
+        this.productoEncontrado = null;
+        this.toast('Producto no encontrado');
+      }
+    });
+  }
 
-    if (!id || cantidad <= 0) return;
+  buscarYAgregar(): void {
+    const codigo = this.formBusqueda.get('codigoBarras')?.value;
+    if (codigo) {
+      this.buscarProducto(codigo);
+    }
+    this.formBusqueda.reset();
+    this.codigoBarrasInput.nativeElement.focus();
+  }
 
-    const prod = this.productos.find(p => p.id === +id);
-    if (!prod) return;
+  agregarProductoEncontrado(): void {
+    if (!this.productoEncontrado) return;
 
-    const yaAgregado = this.seleccionados.find(s => s.producto.id === prod.id);
+    const yaAgregado = this.seleccionados.find(s => s.producto.id === this.productoEncontrado!.id);
     if (yaAgregado) {
-      yaAgregado.cantidad += cantidad;
-      yaAgregado.subtotal = yaAgregado.cantidad * prod.precioVenta;
+      if (yaAgregado.cantidad < yaAgregado.producto.stock) {
+        yaAgregado.cantidad += 1;
+        yaAgregado.subtotal = yaAgregado.cantidad * yaAgregado.producto.precioVenta;
+        this.calcularTotal();
+      } else {
+        this.toast('Stock insuficiente');
+      }
     } else {
       this.seleccionados.push({
-        producto: prod,
-        cantidad,
-        subtotal: cantidad * prod.precioVenta
+        producto: this.productoEncontrado,
+        cantidad: 1,
+        subtotal: this.productoEncontrado.precioVenta
       });
+      this.calcularTotal();
     }
 
-    this.formBusqueda.reset({ productoId: '', cantidad: 1 });
+    // Limpiar y enfocar
+    this.formBusqueda.reset();
+    this.codigoBarrasInput.nativeElement.focus();
+  }
+
+  actualizarCantidad(index: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const nuevaCantidad = parseInt(input.value);
+    const item = this.seleccionados[index];
+    
+    if (isNaN(nuevaCantidad) || nuevaCantidad < 1) {
+      input.value = item.cantidad.toString();
+      return;
+    }
+
+    item.cantidad = nuevaCantidad;
+    item.subtotal = item.cantidad * item.producto.precioVenta;
     this.calcularTotal();
   }
 
@@ -70,25 +116,26 @@ export class RegistroComponent implements OnInit {
   calcularTotal(): void {
     this.total = this.seleccionados.reduce((acc, item) => acc + item.subtotal, 0);
   }
-  
+
+  get puedeConfirmar(): boolean {
+    return this.seleccionados.length > 0 && 
+           !this.seleccionados.some(item => item.cantidad > item.producto.stock);
+  }
 
   confirmarVenta(): void {
     if (this.seleccionados.length === 0) {
-      alert('Debe agregar al menos un producto.');
+      this.toast('Debe agregar al menos un producto.');
       return;
     }
 
-    // 🔴 Validación de stock
-    const sinStock = this.seleccionados.find(item => item.cantidad > item.producto.stock);
-    if (sinStock) {
-      this.toast(`Stock insuficiente para "${sinStock.producto.nombre}". Stock disponible: ${sinStock.producto.stock}`);
+    if (!this.puedeConfirmar) {
+      this.toast('Hay productos con cantidad mayor al stock disponible');
       return;
     }
-  
+
     const detalles: DetalleVentaDTO[] = this.seleccionados.map(item => ({
       productoId: item.producto.id!,
-      cantidad: item.cantidad,
-      precioUnitario: item.producto.precioVenta
+      cantidad: item.cantidad
     }));
     
     const venta: VentaDTO = { usuarioId: 1, detalles };
@@ -104,6 +151,7 @@ export class RegistroComponent implements OnInit {
       }
     });
   }
+
   toast(msg: string): void {
     this.toastMensaje = msg;
     this.mostrarToast = true;

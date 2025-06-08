@@ -13,7 +13,6 @@ export interface DetalleVentaDTO {
   productoId: number;
   producto?: Producto;
   cantidad: number;
-  precioUnitario: number;
 }
 
 export interface VentaDTO {

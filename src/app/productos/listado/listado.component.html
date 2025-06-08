@@ -1,94 +1,175 @@
-<h2>Listado de productos</h2>
+<div class="page-header">
+  <h2>Listado de Productos</h2>
+  <button class="btn-primary" (click)="abrirModalCrear()">
+    <i class="fas fa-plus"></i>
+    Nuevo Producto
+  </button>
+</div>
 
-<input type="text" [(ngModel)]="termino" (input)="filtrar()" placeholder="Buscar por nombre o código..." class="buscador" />
-<button (click)="abrirAlta()">➕ Nuevo producto</button>
+<div class="search-bar">
+  <div class="search-input">
+    <i class="fas fa-search search-icon"></i>
+    <input 
+      type="text" 
+      [(ngModel)]="terminoBusqueda" 
+      (ngModelChange)="filtrarProductos()"
+      placeholder="Buscar productos..."
+    >
+  </div>
+</div>
 
-<p *ngIf="error" class="error">{{ error }}</p>
+<div class="card">
+  <div class="table-responsive">
+    <table *ngIf="productos.length > 0">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Stock</th>
+          <th>Categoría</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let producto of productosFiltrados">
+          <td>{{producto.codigoBarra}}</td>
+          <td>{{producto.nombre}}</td>
+          <td>{{producto.descripcion}}</td>
+          <td>{{producto.precioVenta | currency:'USD'}}</td>
+          <td>
+            <span [class.stock-bajo]="producto.stock < 10">
+              {{producto.stock}}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn-icon primary" (click)="editarProducto(producto)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon danger" (click)="eliminarProducto(producto.id)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-<table *ngIf="filtrados.length > 0; else sinProductos">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Código</th>
-      <th>Stock</th>
-      <th>Base</th>
-      <th>Venta</th>
-      <th>Ganancia</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let p of filtrados">
-      <ng-container *ngIf="editandoId === p.id; else verFila">
-        <td><input [formControl]="formEdicion.controls.nombre" /></td>
-        <td><input [formControl]="formEdicion.controls.codigoBarra" /></td>
-        <td><input type="number" [formControl]="formEdicion.controls.stock" /></td>
-        <td><input type="number" [formControl]="formEdicion.controls.precioCompra" /></td>
-        <td><input type="number" [formControl]="formEdicion.controls.precioVenta" /></td>
-        <td><input type="number" [formControl]="formEdicion.controls.porcentajeGanancia" /></td>
-        <td><input type="checkbox" [formControl]="formEdicion.controls.estado" /></td>
-        <td>
-          <button (click)="guardarEdicion(p.id!)">💾</button>
-          <button (click)="cancelarEdicion()">❌</button>
-        </td>
-      </ng-container>
-      <ng-template #verFila>
-        <td>{{ p.nombre }}</td>
-        <td>{{ p.codigoBarra }}</td>
-        <td>{{ p.stock }}</td>
-        <td>{{ p.precioCompra | currency:'ARS' }}</td>
-        <td>{{ p.precioVenta | currency:'ARS' }}</td>
-        <td>{{ p.porcentajeGanancia }}%</td>
-        <td>{{ p.estado ? 'Activo' : 'Inactivo' }}</td>
-        <td>
-          <button (click)="comenzarEdicion(p)">✏️</button>
-        </td>
-      </ng-template>
-    </tr>
-  </tbody>
-</table>
+    <div *ngIf="productos.length === 0" class="empty-state">
+      <i class="fas fa-box empty-icon"></i>
+      <p>No hay productos registrados</p>
+    </div>
+  </div>
+</div>
 
-<ng-template #sinProductos>
-  <p>No hay productos.</p>
-</ng-template>
+<!-- Modal de Producto -->
+<div class="modal" *ngIf="mostrarModal">
+  <div class="modal-backdrop" (click)="cerrarModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>{{modoEdicion ? 'Editar' : 'Nuevo'}} Producto</h3>
+      <button class="btn-icon" (click)="cerrarModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
 
+    <div class="modal-body">
+      <form [formGroup]="productoForm">
+        <div class="form-group">
+          <label for="codigo">Código</label>
+          <input 
+            id="codigo" 
+            type="text" 
+            formControlName="codigo"
+            [class.error]="productoForm.get('codigo')?.invalid && productoForm.get('codigo')?.touched"
+          >
+          <span class="error-message" *ngIf="productoForm.get('codigo')?.invalid && productoForm.get('codigo')?.touched">
+            El código es requerido
+          </span>
+        </div>
 
-<!-- MODAL de alta -->
-<div class="modal" *ngIf="mostrarAlta">
-    <div class="modal-content">
-      <h3>Nuevo producto</h3>
-  
-      <form [formGroup]="formAlta" (ngSubmit)="guardarAlta()">
-        <label>Nombre</label>
-        <input formControlName="nombre" />
-  
-        <label>Código de barra</label>
-        <input formControlName="codigoBarra" />
-  
-        <label>Stock</label>
-        <input type="number" formControlName="stock" />
-  
-        <label>Precio base</label>
-        <input type="number" formControlName="precioBase" />
-  
-        <label>Precio venta</label>
-        <input type="number" formControlName="precioVenta" />
-  
-        <label>Ganancia (%)</label>
-        <input type="number" formControlName="porcentajeGanancia" />
-  
-        <label>Estado</label>
-        <select formControlName="estado">
-          <option value="activo">Activo</option>
-          <option value="inactivo">Inactivo</option>
-        </select>
-  
-        <div class="acciones">
-          <button type="submit">Guardar</button>
-          <button type="button" (click)="cerrarAlta()">Cancelar</button>
+        <div class="form-group">
+          <label for="nombre">Nombre</label>
+          <input 
+            id="nombre" 
+            type="text" 
+            formControlName="nombre"
+            [class.error]="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched"
+          >
+          <span class="error-message" *ngIf="productoForm.get('nombre')?.invalid && productoForm.get('nombre')?.touched">
+            El nombre es requerido
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="descripcion">Descripción</label>
+          <input 
+            id="descripcion" 
+            type="text" 
+            formControlName="descripcion"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="precio">Precio</label>
+          <input 
+            id="precio" 
+            type="number" 
+            formControlName="precio"
+            [class.error]="productoForm.get('precio')?.invalid && productoForm.get('precio')?.touched"
+          >
+          <span class="error-message" *ngIf="productoForm.get('precio')?.invalid && productoForm.get('precio')?.touched">
+            El precio debe ser mayor a 0
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="stock">Stock</label>
+          <input 
+            id="stock" 
+            type="number" 
+            formControlName="stock"
+            [class.error]="productoForm.get('stock')?.invalid && productoForm.get('stock')?.touched"
+          >
+          <span class="error-message" *ngIf="productoForm.get('stock')?.invalid && productoForm.get('stock')?.touched">
+            El stock debe ser mayor o igual a 0
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="categoria">Categoría</label>
+          <select 
+            id="categoria" 
+            formControlName="categoria"
+            [class.error]="productoForm.get('categoria')?.invalid && productoForm.get('categoria')?.touched"
+          >
+            <option value="">Seleccione una categoría</option>
+            <option *ngFor="let cat of categorias" [value]="cat">{{cat}}</option>
+          </select>
+          <span class="error-message" *ngIf="productoForm.get('categoria')?.invalid && productoForm.get('categoria')?.touched">
+            La categoría es requerida
+          </span>
         </div>
       </form>
     </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModal()">Cancelar</button>
+      <button 
+        class="btn-primary" 
+        (click)="guardarProducto()"
+        [disabled]="productoForm.invalid || guardando"
+      >
+        <i class="fas fa-save"></i>
+        {{guardando ? 'Guardando...' : 'Guardar'}}
+      </button>
+    </div>
   </div>
+</div>
+
+<!-- Alerta de Error -->
+<div class="alert error" *ngIf="error">
+  <i class="fas fa-exclamation-circle alert-icon"></i>
+  {{error}}
+</div>
   

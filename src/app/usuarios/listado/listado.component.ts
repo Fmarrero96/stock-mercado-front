@@ -72,17 +72,18 @@ export class ListadoComponent implements OnInit {
   guardarNuevoUsuario(): void {
     if (this.formAlta.invalid) return;
 
+    const formValue = this.formAlta.value;
+    
     // Validar email duplicado antes de enviar
-    const emailExiste = this.usuarios.some(u => u.email.toLowerCase() === nuevoUsuario.email.toLowerCase());
+    const emailExiste = this.usuarios.some(u => u.email.toLowerCase() === formValue.email.toLowerCase());
     if (emailExiste) {
       alert('Ya existe un usuario con ese email 📧');
       return;
     }
   
-    const formValue = this.formAlta.value;
     const nuevoUsuario = {
       ...formValue,
-      rol: this.rolesDisponibles.find(r => r.id === formValue.rolId)
+      rolId: Number(formValue.rolId) // Aseguramos que rolId sea número
     };
   
     this.usuarioService.crearUsuario(nuevoUsuario).subscribe({
@@ -100,11 +101,15 @@ export class ListadoComponent implements OnInit {
         u.nombre.toLowerCase().includes(this.termino.toLowerCase()) ||
         u.email.toLowerCase().includes(this.termino.toLowerCase())
       );
-      const coincideRol = this.rol === '' || u.rol.id?.toString() === this.rol;
+      const coincideRol = this.rol === '' || u.rolId === Number(this.rol);
       return coincideTermino && coincideRol;
     });
   }
 
+  getNombreRol(rolId: number): string {
+    const rol = this.rolesDisponibles.find(r => r.id === rolId);
+    return rol ? rol.nombre : 'Rol no encontrado';
+  }
 
   toast(mensaje: string): void {
     const div = document.createElement('div');
@@ -125,13 +130,12 @@ export class ListadoComponent implements OnInit {
     setTimeout(() => document.body.removeChild(div), 3000);
   }
 
-get totalPaginas(): number {
-  return Math.ceil(this.filtrados.length / this.usuariosPorPagina);
-}
+  get totalPaginas(): number {
+    return Math.ceil(this.filtrados.length / this.usuariosPorPagina);
+  }
 
-get usuariosPaginados(): Usuario[] {
-  const inicio = (this.paginaActual - 1) * this.usuariosPorPagina;
-  return this.filtrados.slice(inicio, inicio + this.usuariosPorPagina);
-}
-  
+  get usuariosPaginados(): Usuario[] {
+    const inicio = (this.paginaActual - 1) * this.usuariosPorPagina;
+    return this.filtrados.slice(inicio, inicio + this.usuariosPorPagina);
+  }
 }

@@ -1,110 +1,289 @@
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-  
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-  
-    th {
-      background-color: #f4f4f4;
-    }
-  }
-  
+// Variables
+$primary: #3498db;
+$success: #2ecc71;
+$danger: #e74c3c;
+$warning: #f1c40f;
+$gray-light: #f8fafc;
+$gray-medium: #e2e8f0;
+$gray-dark: #64748b;
+$text-primary: #2c3e50;
 
-  .detalle {
-    width: 100%;
-    margin-top: 0.5rem;
-    border: 1px solid #ccc;
-    border-collapse: collapse;
-  
-    th, td {
-      border: 1px solid #ccc;
-      padding: 4px 8px;
-    }
-  
-    th {
-      background-color: #eaeaea;
-    }
-  }
-  
-  //filtros
-  
-  .filtros {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-  
-    input {
-      padding: 5px;
-    }
-  
-    label {
-      font-weight: bold;
-    }
-  }
-  
+// Contenedor principal
+:host {
+  display: block;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-  //agrupador
-  .agrupador {
-    margin-bottom: 1rem;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-  
-    select {
-      padding: 4px;
+h2 {
+  color: $text-primary;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+// Estado de carga
+.cargando {
+  text-align: center;
+  padding: 3rem;
+  color: $gray-dark;
+  font-size: 1.1rem;
+  background: $gray-light;
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+// Mensaje de error
+.error {
+  background-color: rgba($danger, 0.1);
+  color: $danger;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba($danger, 0.2);
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+// Agrupador y filtros
+.controles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.agrupador, .filtros {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+  label {
+    display: block;
+    color: $text-primary;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  select, input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid $gray-medium;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.1);
     }
   }
-  
-  .resumen-totales {
-    margin: 1rem 0;
-  
-    ul {
-      list-style: none;
-      padding: 0;
-  
-      li {
-        padding: 4px 0;
+}
+
+// Resumen de totales
+.resumen-totales {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+
+  h3 {
+    color: $text-primary;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+
+    li {
+      padding: 1rem;
+      background: $gray-light;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      strong {
+        color: $text-primary;
       }
     }
   }
 
-  //exportar
   .btn-exportar {
-    margin-top: 1rem;
-    padding: 6px 12px;
-    background-color: #3f51b5;
+    margin-top: 1.5rem;
+    background-color: $primary;
     color: white;
     border: none;
-    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
     cursor: pointer;
-  }
-  
-  .btn-exportar:hover {
-    background-color: #303f9f;
-  }
-  
-  //PAGINACION
-  .paginacion {
+    font-weight: 500;
     display: flex;
-    justify-content: center;
-    margin: 1rem 0;
-    gap: 1rem;
-  
-    button {
-      padding: 6px 12px;
-      background: #3f51b5;
-      color: white;
-      border: none;
-      border-radius: 4px;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: darken($primary, 10%);
+      transform: translateY(-1px);
     }
-  
-    button:disabled {
-      background: #ccc;
+
+    i {
+      font-size: 1.2rem;
     }
   }
+}
+
+// Tabla de ventas
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid $gray-medium;
+  }
+
+  th {
+    background-color: $gray-light;
+    color: $text-primary;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tbody {
+    tr {
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: $gray-light;
+      }
+
+      button {
+        background: none;
+        border: none;
+        color: $primary;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &:hover {
+          background-color: rgba($primary, 0.1);
+        }
+
+        i {
+          font-size: 1.2rem;
+        }
+      }
+    }
+  }
+}
+
+// Tabla de detalles
+.detalle {
+  background: $gray-light;
+  margin: 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+
+  th {
+    background: rgba($primary, 0.1);
+    color: $primary;
+    font-size: 0.85rem;
+  }
+
+  td {
+    font-size: 0.9rem;
+  }
+}
+
+// Paginación
+.paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+
+  button {
+    background-color: white;
+    border: 1px solid $gray-medium;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background-color: $gray-light;
+      border-color: $primary;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  span {
+    color: $gray-dark;
+    font-size: 0.95rem;
+  }
+}
+
+// Estado vacío
+.sin-datos {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: $gray-dark;
+  font-size: 1.1rem;
+  background: $gray-light;
+  border-radius: 12px;
+  margin: 2rem 0;
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+    color: $gray-dark;
+  }
+}
   

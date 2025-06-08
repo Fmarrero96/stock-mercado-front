@@ -1,77 +1,176 @@
-<h2>Proveedores</h2>
+<div class="page-header">
+  <h2>Gestión de Proveedores</h2>
+  <button class="btn-primary" (click)="abrirModal()">
+    <span class="icon">➕</span>
+    Nuevo Proveedor
+  </button>
+</div>
 
-<!-- Filtro -->
-<input type="text" [(ngModel)]="termino" (input)="aplicarFiltro()" placeholder="Buscar por nombre o email..." />
+<div class="search-bar">
+  <div class="search-input">
+    <span class="search-icon">🔍</span>
+    <input 
+      type="text" 
+      [(ngModel)]="termino" 
+      (input)="aplicarFiltro()" 
+      placeholder="Buscar por nombre o email..."
+    />
+  </div>
+</div>
 
-<!-- Botón para agregar -->
-<button (click)="abrirModal()">➕ Nuevo proveedor</button>
+<div class="alert error" *ngIf="error">
+  <span class="alert-icon">⚠️</span>
+  {{ error }}
+</div>
 
-<p *ngIf="error" class="error">{{ error }}</p>
+<div class="card" *ngIf="filtrados.length > 0; else sinProveedores">
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Dirección</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of filtrados">
+          <!-- Fila editable -->
+          <ng-container *ngIf="editandoId === p.id; else verFila">
+            <td>
+              <input 
+                [formControl]="$any(formEdicion.get('nombre'))" 
+                class="edit-input"
+                placeholder="Nombre"
+              />
+            </td>
+            <td>
+              <input 
+                [formControl]="$any(formEdicion.get('email'))" 
+                class="edit-input"
+                placeholder="Email"
+                type="email"
+              />
+            </td>
+            <td>
+              <input 
+                [formControl]="$any(formEdicion.get('telefono'))" 
+                class="edit-input"
+                placeholder="Teléfono"
+              />
+            </td>
+            <td>
+              <input 
+                [formControl]="$any(formEdicion.get('direccion'))" 
+                class="edit-input"
+                placeholder="Dirección"
+              />
+            </td>
+            <td class="actions">
+              <button class="btn-icon success" (click)="guardarEdicion(p.id)" title="Guardar">
+                <span class="icon">💾</span>
+              </button>
+              <button class="btn-icon danger" (click)="cancelarEdicion()" title="Cancelar">
+                <span class="icon">❌</span>
+              </button>
+            </td>
+          </ng-container>
 
-<!-- Tabla de proveedores -->
-<table *ngIf="filtrados.length > 0; else sinProveedores">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Email</th>
-      <th>Teléfono</th>
-      <th>Dirección</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let p of filtrados">
-      <!-- Fila editable -->
-      <ng-container *ngIf="editandoId === p.id; else verFila">
-        <td><input [formControl]="$any(formEdicion.get('nombre'))" /></td>
-        <td><input [formControl]="$any(formEdicion.get('email'))" /></td>
-        <td><input [formControl]="$any(formEdicion.get('telefono'))" /></td>
-        <td><input [formControl]="$any(formEdicion.get('direccion'))" /></td>
-        <td>
-          <button (click)="guardarEdicion(p.id)">💾</button>
-          <button (click)="cancelarEdicion()">❌</button>
-        </td>
-      </ng-container>
-
-      <!-- Fila normal -->
-      <ng-template #verFila>
-        <td>{{ p.nombre }}</td>
-        <td>{{ p.email }}</td>
-        <td>{{ p.telefono }}</td>
-        <td>{{ p.direccion }}</td>
-        <td>
-          <button (click)="comenzarEdicion(p)">✏️</button>
-        </td>
-      </ng-template>
-    </tr>
-  </tbody>
-</table>
+          <!-- Fila normal -->
+          <ng-template #verFila>
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.email }}</td>
+            <td>{{ p.telefono }}</td>
+            <td>{{ p.direccion }}</td>
+            <td class="actions">
+              <button class="btn-icon primary" (click)="comenzarEdicion(p)" title="Editar">
+                <span class="icon">✏️</span>
+              </button>
+            </td>
+          </ng-template>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
 <ng-template #sinProveedores>
-  <p>No hay proveedores registrados.</p>
+  <div class="empty-state">
+    <span class="empty-icon">📋</span>
+    <p>No hay proveedores registrados.</p>
+  </div>
 </ng-template>
 
 <!-- Modal -->
 <div class="modal" *ngIf="mostrarModal">
-  <div class="modal-contenido">
-    <h3>Nuevo Proveedor</h3>
+  <div class="modal-backdrop" (click)="cerrarModal()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Nuevo Proveedor</h3>
+      <button class="btn-icon" (click)="cerrarModal()">
+        <span class="icon">✖️</span>
+      </button>
+    </div>
 
-    <form [formGroup]="formAlta" (ngSubmit)="guardarProveedor()">
-      <label>Nombre</label>
-      <input formControlName="nombre" />
+    <form [formGroup]="formAlta" (ngSubmit)="guardarProveedor()" class="modal-body">
+      <div class="form-group">
+        <label>Nombre</label>
+        <input 
+          formControlName="nombre" 
+          type="text"
+          placeholder="Ingrese el nombre"
+        />
+        <span class="error-message" *ngIf="formAlta.get('nombre')?.errors?.['required'] && formAlta.get('nombre')?.touched">
+          El nombre es requerido
+        </span>
+      </div>
 
-      <label>Email</label>
-      <input formControlName="email" type="email" />
+      <div class="form-group">
+        <label>Email</label>
+        <input 
+          formControlName="email" 
+          type="email"
+          placeholder="Ingrese el email"
+        />
+        <span class="error-message" *ngIf="formAlta.get('email')?.errors?.['required'] && formAlta.get('email')?.touched">
+          El email es requerido
+        </span>
+        <span class="error-message" *ngIf="formAlta.get('email')?.errors?.['email'] && formAlta.get('email')?.touched">
+          El email no es válido
+        </span>
+      </div>
 
-      <label>Teléfono</label>
-      <input formControlName="telefono" />
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input 
+          formControlName="telefono"
+          type="tel"
+          placeholder="Ingrese el teléfono"
+        />
+      </div>
 
-      <label>Dirección</label>
-      <input formControlName="direccion" />
+      <div class="form-group">
+        <label>Dirección</label>
+        <input 
+          formControlName="direccion"
+          type="text"
+          placeholder="Ingrese la dirección"
+        />
+      </div>
 
-      <div class="acciones">
-        <button type="submit" [disabled]="formAlta.invalid">✅ Guardar</button>
-        <button type="button" (click)="cerrarModal()">❌ Cancelar</button>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          class="btn-primary" 
+          [disabled]="formAlta.invalid"
+        >
+          Guardar
+        </button>
       </div>
     </form>
   </div>

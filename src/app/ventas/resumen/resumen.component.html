@@ -1,107 +1,154 @@
 <h2>Resumen de ventas</h2>
 
 <div *ngIf="cargando" class="cargando">
-    Cargando ventas...
+  <i class="fas fa-spinner fa-spin"></i>
+  Cargando ventas...
 </div>
 
-<p *ngIf="error" class="error">{{ error }}</p>
+<div *ngIf="error" class="error">
+  <i class="fas fa-exclamation-circle"></i>
+  {{ error }}
+</div>
 
-<div *ngIf="!cargando">
-
+<div *ngIf="!cargando" class="contenido">
+  <div class="controles">
     <div class="agrupador">
-        <label>Ver totales por:</label>
-        <select [(ngModel)]="modoAgrupacion" (change)="calcularTotales()">
-          <option value="dia">Día</option>
-          <option value="semana">Semana</option>
-          <option value="mes">Mes</option>
-        </select>
-      </div>
-    
-      <div *ngIf="totalesAgrupados.length > 0" class="resumen-totales">
-        <h3>Totales por {{ modoAgrupacion }}</h3>
-        <ul>
-          <li *ngFor="let item of totalesAgrupados">
-            <strong>{{ item.clave }}:</strong> {{ item.total | currency:'ARS' }}
-          </li>
-        </ul>
-        <button (click)="exportarResumen()" class="btn-exportar">📁 Exportar a Excel</button>
-      </div>
-
-    <!-- Filtros -->
-    <div class="filtros" *ngIf="!cargando && ventas.length > 0">
-        <label>Desde:</label>
-        <input type="date" [(ngModel)]="fechaDesde" (change)="aplicarFiltros()" />
-
-        <label>Hasta:</label>
-        <input type="date" [(ngModel)]="fechaHasta" (change)="aplicarFiltros()" />
-
-        <label>Buscar producto:</label>
-        <input type="text" [(ngModel)]="busquedaProducto" (input)="aplicarFiltros()" placeholder="Ej: Yerba" />
+      <label for="agrupacion">Ver totales por:</label>
+      <select 
+        id="agrupacion"
+        [(ngModel)]="modoAgrupacion" 
+        (change)="calcularTotales()"
+      >
+        <option value="dia">Día</option>
+        <option value="semana">Semana</option>
+        <option value="mes">Mes</option>
+      </select>
     </div>
-    <table *ngIf="ventas.length > 0; else sinVentas">
+
+    <div class="filtros" *ngIf="ventas.length > 0">
+      <div class="form-group">
+        <label for="fechaDesde">Desde:</label>
+        <input 
+          id="fechaDesde"
+          type="date" 
+          [(ngModel)]="fechaDesde" 
+          (change)="aplicarFiltros()" 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="fechaHasta">Hasta:</label>
+        <input 
+          id="fechaHasta"
+          type="date" 
+          [(ngModel)]="fechaHasta" 
+          (change)="aplicarFiltros()" 
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="busqueda">Buscar producto:</label>
+        <input 
+          id="busqueda"
+          type="text" 
+          [(ngModel)]="busquedaProducto" 
+          (input)="aplicarFiltros()" 
+          placeholder="Ej: Yerba" 
+        />
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="totalesAgrupados.length > 0" class="resumen-totales">
+    <h3>Totales por {{ modoAgrupacion }}</h3>
+    <ul>
+      <li *ngFor="let item of totalesAgrupados">
+        <strong>{{ item.clave }}</strong>
+        <span>{{ item.total | currency:'ARS' }}</span>
+      </li>
+    </ul>
+    <button class="btn-exportar" (click)="exportarResumen()">
+      <i class="fas fa-file-export"></i>
+      Exportar a Excel
+    </button>
+  </div>
+
+  <div class="card" *ngIf="ventas.length > 0">
+    <div class="table-responsive">
+      <table>
         <thead>
-            <tr>
-                <th>ID</th>
-                <th>Fecha</th>
-                <th>Total</th>
-                <th>Cantidad ítems</th>
-                <th>Acciones</th>
-            </tr>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Cantidad ítems</th>
+            <th>Acciones</th>
+          </tr>
         </thead>
         <tbody>
-            <ng-container *ngFor="let v of ventasPaginadas; let i = index">
+          <ng-container *ngFor="let v of ventasPaginadas; let i = index">
+            <!-- Fila principal -->
+            <tr>
+              <td>{{ v.id }}</td>
+              <td>{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ v.total | currency:'ARS' }}</td>
+              <td>{{ v.detalles?.length || 0 }}</td>
+              <td>
+                <button (click)="toggleDetalle(i)">
+                  <i [class]="expandedIndex === i ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                  {{ expandedIndex === i ? 'Ocultar' : 'Ver detalle' }}
+                </button>
+              </td>
+            </tr>
 
-                <!-- Fila principal -->
-                <tr>
-                    <td>{{ v.id }}</td>
-                    <td>{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-                    <td>{{ v.total | currency:'ARS' }}</td>
-                    <td>{{ v.detalles?.length || 0 }}</td>
-                    <td>
-                        <button (click)="toggleDetalle(i)">
-                            {{ expandedIndex === i ? '🔽 Ocultar' : '🔼 Ver detalle' }}
-                        </button>
-                    </td>
-                </tr>
-
-                <!-- Detalle expandido -->
-                <tr *ngIf="expandedIndex === i">
-                    <td colspan="5">
-                        <table class="detalle">
-                            <thead>
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Unitario</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let d of v.detalles">
-                                    <td>{{ d.producto?.nombre || 'Producto no encontrado' }}</td>
-                                    <td>{{ d.cantidad }}</td>
-                                    <td>{{ d.precioUnitario | currency:'ARS' }}</td>
-                                    <td>{{ d.precioUnitario * d.cantidad | currency:'ARS' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-            </ng-container>
+            <!-- Detalle expandido -->
+            <tr *ngIf="expandedIndex === i">
+              <td colspan="5">
+                <table class="detalle">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Precio Unitario</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let d of v.detalles">
+                      <td>{{ d.producto?.nombre || 'Producto no encontrado' }}</td>
+                      <td>{{ d.cantidad }}</td>
+                      <td>{{ d.precioUnitario | currency:'ARS' }}</td>
+                      <td>{{ d.precioUnitario * d.cantidad | currency:'ARS' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+          </ng-container>
         </tbody>
-    </table>
-
-    <div class="paginacion" *ngIf="totalPaginas > 1">
-        <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1">⬅️ Anterior</button>
-        <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
-        <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual === totalPaginas">Siguiente ➡️</button>
+      </table>
     </div>
+  </div>
 
-    <ng-template #sinVentas>
-        <p class="sin-datos">No hay ventas registradas.</p>
-    </ng-template>
+  <div class="paginacion" *ngIf="totalPaginas > 1">
+    <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1">
+      <i class="fas fa-chevron-left"></i>
+      Anterior
+    </button>
+    <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
+    <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual === totalPaginas">
+      Siguiente
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <div *ngIf="ventas.length === 0" class="sin-datos">
+    <i class="fas fa-box-open"></i>
+    <p>No hay ventas registradas.</p>
+  </div>
+
+  <button class="btn-exportar" (click)="cargarVentas()" [disabled]="cargando">
+    <i class="fas fa-sync-alt" [class.fa-spin]="cargando"></i>
+    Recargar
+  </button>
 </div>
-
-<button (click)="cargarVentas()" [disabled]="cargando">
-    🔄 Recargar
-</button>

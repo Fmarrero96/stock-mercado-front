@@ -1,162 +1,127 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductoService, Producto } from '../producto.service';
-import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-
-interface ProductoForm {
-  nombre: FormControl<string | null>;
-  codigoBarra: FormControl<string | null>;
-  stock: FormControl<number | null>;
-  precioCompra: FormControl<number | null>;
-  precioVenta: FormControl<number | null>;
-  porcentajeGanancia: FormControl<number | null>;
-  estado: FormControl<boolean | null>;
-}
 
 @Component({
-  selector: 'app-listado',
+  selector: 'app-producto-listado',
   standalone: false,
   templateUrl: './listado.component.html',
   styleUrls: ['./listado.component.scss']
 })
-export class ListadoComponent implements OnInit {
+export class ProductoListadoComponent implements OnInit {
   productos: Producto[] = [];
-  filtrados: Producto[] = [];
-  error = '';
-  termino = '';
-  editandoId: number | null = null;
-  formEdicion!: FormGroup<ProductoForm>;
-  formAlta = new FormGroup<ProductoForm>({
-    nombre: new FormControl('', { nonNullable: true }),
-    codigoBarra: new FormControl('', { nonNullable: true }),
-    stock: new FormControl(0, { nonNullable: true }),
-    precioCompra: new FormControl(0, { nonNullable: true }),
-    precioVenta: new FormControl(0, { nonNullable: true }),
-    porcentajeGanancia: new FormControl(0, { nonNullable: true }),
-    estado: new FormControl(true, { nonNullable: true })
-  });
-  mostrarAlta = false;
-
-  constructor(private productoService: ProductoService, private fb: FormBuilder) {}
+  productosFiltrados: Producto[] = [];
+  categorias: string[] = ['Electrónica', 'Ropa', 'Alimentos', 'Hogar', 'Otros'];
   
+  terminoBusqueda: string = '';
+  mostrarModal: boolean = false;
+  modoEdicion: boolean = false;
+  productoEditando: Producto | null = null;
+  guardando: boolean = false;
+  error: string = '';
+
+  productoForm: FormGroup;
+
+  constructor(
+    private fb: FormBuilder,
+    private productoService: ProductoService
+  ) {
+    this.productoForm = this.fb.group({
+      codigo: ['', [Validators.required]],
+      nombre: ['', [Validators.required]],
+      descripcion: [''],
+      precio: [0, [Validators.required, Validators.min(0)]],
+      stock: [0, [Validators.required, Validators.min(0)]],
+    });
+  }
 
   ngOnInit(): void {
     this.cargarProductos();
   }
 
   cargarProductos(): void {
-    this.productoService.getProductos().subscribe({
-      next: (data) => {
-        this.productos = data;
-        this.filtrados = data;
+    this.productoService.obtenerProductos().subscribe({
+      next: (productos: Producto[]) => {
+        this.productos = productos;
+        this.filtrarProductos();
       },
-      error: () => this.error = 'Error al cargar los productos'
+      error: (error: Error) => {
+        this.error = 'Error al cargar los productos: ' + error.message;
+      }
     });
   }
-  
 
-  filtrar(): void {
-    const termino = this.termino.toLowerCase();
-    this.filtrados = this.productos.filter(p =>
-      p.nombre.toLowerCase().includes(termino) ||
-      p.codigoBarra.toLowerCase().includes(termino)
+  filtrarProductos(): void {
+    if (!this.terminoBusqueda) {
+      this.productosFiltrados = this.productos;
+      return;
+    }
+
+    const termino = this.terminoBusqueda.toLowerCase();
+    this.productosFiltrados = this.productos.filter(producto => 
+      producto.codigoBarra.toLowerCase().includes(termino) ||
+      producto.nombre.toLowerCase().includes(termino) ||
+      producto.descripcion.toLowerCase().includes(termino)
     );
   }
 
-  comenzarEdicion(producto: Producto): void {
-    this.editandoId = producto.id ?? null;
-    this.formEdicion = this.fb.group<ProductoForm>({
-      nombre: this.fb.control(producto.nombre),
-      codigoBarra: this.fb.control(producto.codigoBarra),
-      stock: this.fb.control(producto.stock),
-      precioCompra: this.fb.control(producto.precioCompra),
-      precioVenta: this.fb.control(producto.precioVenta),
-      porcentajeGanancia: this.fb.control(producto.porcentajeGanancia),
-      estado: this.fb.control(producto.estado)
+  abrirModalCrear(): void {
+    this.modoEdicion = false;
+    this.productoEditando = null;
+    this.productoForm.reset({
+      precio: 0,
+      stock: 0
     });
+    this.mostrarModal = true;
   }
 
-  guardarEdicion(id: number): void {
-    if (this.formEdicion.invalid) return;
-    const formValue = this.formEdicion.getRawValue();
-    const editado: Producto = {
-      id,
-      nombre: formValue.nombre ?? '',
-      codigoBarra: formValue.codigoBarra ?? '',
-      stock: formValue.stock ?? 0,
-      precioCompra: formValue.precioCompra ?? 0,
-      precioVenta: formValue.precioVenta ?? 0,
-      porcentajeGanancia: formValue.porcentajeGanancia ?? 0,
-      estado: formValue.estado ?? true
-    };
-    this.productoService.actualizarProducto(id, editado).subscribe({
-      next: () => {
-        this.editandoId = null;
-        this.cargarProductos();
-      },
-      error: () => alert('Error al guardar cambios')
-    });
+  editarProducto(producto: Producto): void {
+    this.modoEdicion = true;
+    this.productoEditando = producto;
+    this.productoForm.patchValue(producto);
+    this.mostrarModal = true;
   }
 
-  cancelarEdicion(): void {
-    this.editandoId = null;
+  cerrarModal(): void {
+    this.mostrarModal = false;
+    this.productoForm.reset();
+    this.productoEditando = null;
+    this.error = '';
   }
 
-  agregarProducto(): void {
-    const nuevo: Producto = {
-      id: 0,
-      nombre: 'Nuevo producto',
-      codigoBarra: '0000000000',
-      stock: 0,
-      precioCompra: 0,
-      precioVenta: 0,
-      porcentajeGanancia: 0,
-      estado: false
-    };
-    this.productoService.crearProducto(nuevo).subscribe({
-      next: () => this.cargarProductos(),
-      error: () => alert('No se pudo agregar el producto')
-    });
-  }
+  guardarProducto(): void {
+    if (this.productoForm.invalid) return;
 
-  abrirAlta(): void {
-    this.mostrarAlta = true;
-    this.formAlta.reset({
-      nombre: '',
-      codigoBarra: '',
-      stock: 0,
-      precioCompra: 0,
-      precioVenta: 0,
-      porcentajeGanancia: 0,
-      estado: true
-    });
-  }
-  
-  cerrarAlta(): void {
-    this.mostrarAlta = false;
-  }
-  
-  guardarAlta(): void {
-    if (this.formAlta.invalid) return;
+    this.guardando = true;
+    const producto = this.productoForm.value;
 
-    const formValue = this.formAlta.getRawValue();
-    const nuevo: Producto = {
-      nombre: formValue.nombre ?? '',
-      codigoBarra: formValue.codigoBarra ?? '',
-      stock: formValue.stock ?? 0,
-      precioCompra: formValue.precioCompra ?? 0,
-      precioVenta: formValue.precioVenta ?? 0,
-      porcentajeGanancia: formValue.porcentajeGanancia ?? 0,
-      estado: formValue.estado ?? true
-    };
+    const operacion = this.modoEdicion && this.productoEditando
+      ? this.productoService.actualizarProducto(this.productoEditando.id, producto)
+      : this.productoService.crearProducto(producto);
 
-    this.productoService.crearProducto(nuevo).subscribe({
+    operacion.subscribe({
       next: () => {
         this.cargarProductos();
-        this.cerrarAlta();
+        this.cerrarModal();
+        this.guardando = false;
       },
-      error: () => alert('No se pudo guardar el producto')
+      error: (error) => {
+        this.error = 'Error al guardar el producto: ' + error.message;
+        this.guardando = false;
+      }
     });
   }
 
-  
+  eliminarProducto(id: number): void {
+    if (!confirm('¿Está seguro de eliminar este producto?')) return;
+
+    this.productoService.eliminarProducto(id).subscribe({
+      next: () => {
+        this.cargarProductos();
+      },
+      error: (error) => {
+        this.error = 'Error al eliminar el producto: ' + error.message;
+      }
+    });
+  }
 }

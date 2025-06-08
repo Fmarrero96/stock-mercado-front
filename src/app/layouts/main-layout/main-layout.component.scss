@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.main-content {
+  max-width: 1200px;
+  margin: 64px auto 0; // 64px es la altura del navbar
+  padding: 2rem;
+  
+  @media (max-width: 1240px) {
+    max-width: 100%;
+    padding: 2rem 1rem;
+  }
+} 

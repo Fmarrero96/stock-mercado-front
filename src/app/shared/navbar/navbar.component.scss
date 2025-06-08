@@ -1,0 +1,104 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 2rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .brand-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    color: #64748b;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #f1f5f9;
+      color: #2c3e50;
+    }
+    
+    &.active {
+      background: #e2e8f0;
+      color: #2c3e50;
+      font-weight: 500;
+    }
+    
+    .item-icon {
+      font-size: 1.25rem;
+    }
+    
+    .item-label {
+      font-size: 0.95rem;
+    }
+  }
+}
+
+.navbar-user {
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #f1f5f9;
+    }
+    
+    .user-icon {
+      font-size: 1.25rem;
+    }
+    
+    .user-name {
+      font-size: 0.95rem;
+      color: #64748b;
+    }
+  }
+}
+
+// Ajuste para el contenido principal
+:host {
+  display: block;
+  
+  & + * {
+    margin-top: 64px; // Altura del navbar
+    padding: 2rem;
+  }
+} 

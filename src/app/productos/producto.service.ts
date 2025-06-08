@@ -3,37 +3,39 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Producto {
-  id?: number;
-  nombre: string;
+  id: number;
   codigoBarra: string;
-  stock: number;
-  precioCompra: number;
+  nombre: string;
+  descripcion: string;
   precioVenta: number;
+  precioCompra: number;
   porcentajeGanancia: number;
-  estado: boolean;
+  activo: boolean;
+  stockMinimo: number;
+  stock: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductoService {
-  private apiUrl = 'http://localhost:8080/api/productos'; // ajustá a tu backend
+  private apiUrl = 'http://localhost:8080/api/productos'; // Ajusta esto según tu backend
 
   constructor(private http: HttpClient) {}
 
-  getProductos(): Observable<Producto[]> {
+  obtenerProductos(): Observable<Producto[]> {
     return this.http.get<Producto[]>(this.apiUrl);
   }
 
-  getProducto(id: number): Observable<Producto> {
+  obtenerProducto(id: number): Observable<Producto> {
     return this.http.get<Producto>(`${this.apiUrl}/${id}`);
   }
 
-  crearProducto(producto: Producto): Observable<Producto> {
+  crearProducto(producto: Omit<Producto, 'id'>): Observable<Producto> {
     return this.http.post<Producto>(this.apiUrl, producto);
   }
 
-  actualizarProducto(id: number, producto: Producto): Observable<Producto> {
+  actualizarProducto(id: number, producto: Partial<Producto>): Observable<Producto> {
     return this.http.put<Producto>(`${this.apiUrl}/${id}`, producto);
   }
 
@@ -43,5 +45,9 @@ export class ProductoService {
 
   getStockBajo(): Observable<Producto[]> {
     return this.http.get<Producto[]>(`${this.apiUrl}/stock-bajo`);
+  }
+
+  buscarPorCodigo(codigo: string): Observable<Producto> {
+    return this.http.get<Producto>(`${this.apiUrl}/codigo-barra/${codigo}`);
   }
 }
