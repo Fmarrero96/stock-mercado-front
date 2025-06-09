@@ -30,7 +30,7 @@ export class LoginComponent {
     const { email, password } = this.form.value;
 
     this.auth.login({ email, password }).subscribe({
-      next: () => this.router.navigate(['/']),
+      next: () => this.router.navigate(['/ventas']),
       error: () => this.error = 'Credenciales inválidas'
     });
   }

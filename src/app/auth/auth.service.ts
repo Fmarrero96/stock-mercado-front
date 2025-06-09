@@ -1,54 +1,62 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay, tap } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Usuario mock para pruebas
-  private mockUser = {
-    email: 'test@test.com',
-    password: '123456'
-  };
+  apiUrl = 'http://localhost:8080/api/auth';
 
-  constructor() {}
+  constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) {}
 
-  login(data: { email: string; password: string }): Observable<{ token: string }> {
-    // Simulamos la validación de credenciales
-    if (data.email === this.mockUser.email && data.password === this.mockUser.password) {
-      // Simulamos un token JWT
-      const mockToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock';
-      
-      // Guardamos el token en localStorage
-      localStorage.setItem('token', mockToken);
-      
-      // Simulamos un delay de red de 1 segundo
-      return of({ token: mockToken }).pipe(delay(1000));
-    } else {
-      // Simulamos un error de credenciales inválidas
-      return new Observable(subscriber => {
-        setTimeout(() => {
-          subscriber.error(new Error('Credenciales inválidas'));
-        }, 1000);
-      });
-    }
+  login(data: { email: string; password: string }) {
+    return this.http.post<{ token: string }>(`${this.apiUrl}/login`, data).pipe(
+      tap(res => {
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('token', res.token);
+          try {
+            const decodedToken: any = jwtDecode(res.token);
+            console.log(decodedToken);
+            localStorage.setItem('usuario', JSON.stringify(decodedToken.username));
+          } catch (e) {
+            console.error('Error decodificando el token:', e);
+          }
+        }
+      })
+    );
   }
 
   logout(): void {
-    localStorage.removeItem('token');
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario'); // También eliminar el usuario del localStorage
+    }
   }
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
+    if (isPlatformBrowser(this.platformId)) {
+      return !!localStorage.getItem('token');
+    }
+    return false;
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('token');
+    }
+    return null;
   }
 
   get usuarioActual(): any {
-    const raw = localStorage.getItem('usuario');
-    return raw ? JSON.parse(raw) : null;
+    if (isPlatformBrowser(this.platformId)) {
+      console.log(localStorage.getItem('usuario'));
+      const raw = localStorage.getItem('usuario');
+      return raw ? JSON.parse(raw) : null;
+    }
+    return null;
   }
 }
