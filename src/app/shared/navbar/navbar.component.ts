@@ -8,8 +8,8 @@ import { Component } from '@angular/core';
 })
 export class NavbarComponent {
   menuItems = [
-    { path: '/', icon: '🏠', label: 'Inicio' },
-    { path: '/ventas', icon: '💰', label: 'Ventas' },
+    { path: '/ventas', icon: '🏠', label: 'Inicio' },
+    { path: '/ventas/resumen', icon: '💰', label: 'Ventas' },
     { path: '/productos', icon: '📦', label: 'Productos' },
     { path: '/proveedores', icon: '🤝', label: 'Proveedores' },
     { path: '/usuarios', icon: '👥', label: 'Usuarios' }

@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="navbar-brand">
-    <span class="logo">📊</span>
-    <span class="brand-name">Stock Mercado</span>
+    <img src="src/assets/icono.png" class="logo">
+    <span class="brand-name">VendeYA  </span>
   </div>
 
   <div class="navbar-menu">
@@ -9,7 +9,7 @@
       <a 
         [routerLink]="item.path"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+        [routerLinkActiveOptions]="{ exact: item.path === '/ventas' }"
         class="menu-item"
       >
         <span class="item-icon">{{ item.icon }}</span>

@@ -1,8 +1,7 @@
-<h2>Gestión de Usuarios</h2>
-
-<div class="acciones-principales">
+<div class="page-header">
+  <h2>Gestión de Usuarios</h2>
   <button class="btn-primary" (click)="abrirModal()">
-    <span class="icono">➕</span>
+    <span class="icon">➕</span>
     Nuevo usuario
   </button>
 </div>
@@ -13,7 +12,7 @@
       type="text" 
       [(ngModel)]="termino" 
       (input)="aplicarFiltros()" 
-      placeholder="Buscar por nombre o email..."
+      placeholder="🔍 Buscar por nombre o email..."
       class="filtro-input"
     />
   </div>
@@ -51,10 +50,9 @@
         </td>
         <td>
           <div class="acciones-tabla">
-            <a [routerLink]="['/usuarios/editar', u.id]" class="btn-accion">
-              <span class="icono">✏️</span>
-              Editar
-            </a>
+            <button class="btn-icon primary" (click)="abrirModal(u)" title="Editar">
+              <span class="icon">✏️</span>
+            </button>
           </div>
         </td>
       </tr>
@@ -90,25 +88,38 @@
   </div>
 </ng-template>
 
-<!-- Modal de alta -->
+<!-- Modal de alta/edición -->
 <div class="modal" *ngIf="mostrarModal">
   <div class="modal-contenido">
-    <h3>Nuevo Usuario</h3>
+    <h3>{{ modoEdicion ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+    <button class="cerrar-modal" (click)="cerrarModal()">✖️</button>
 
-    <form [formGroup]="formAlta" (ngSubmit)="guardarNuevoUsuario()">
+    <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()">
       <div class="form-grupo">
         <label>Nombre</label>
-        <input formControlName="nombre" type="text" class="form-control" />
+        <input formControlName="nombre" type="text" class="form-control" placeholder="Ingrese el nombre" />
+        <span class="error-message" *ngIf="usuarioForm.get('nombre')?.errors?.['required'] && usuarioForm.get('nombre')?.touched">
+          El nombre es requerido
+        </span>
       </div>
 
       <div class="form-grupo">
         <label>Email</label>
-        <input formControlName="email" type="email" class="form-control" />
+        <input formControlName="email" type="email" class="form-control" placeholder="Ingrese el email" />
+        <span class="error-message" *ngIf="usuarioForm.get('email')?.errors?.['required'] && usuarioForm.get('email')?.touched">
+          El email es requerido
+        </span>
+        <span class="error-message" *ngIf="usuarioForm.get('email')?.errors?.['email'] && usuarioForm.get('email')?.touched">
+          El email no es válido
+        </span>
       </div>
 
       <div class="form-grupo">
         <label>Contraseña</label>
-        <input formControlName="password" type="password" class="form-control" />
+        <input formControlName="password" type="password" class="form-control" placeholder="Dejar en blanco para no cambiar" [required]="!modoEdicion" />
+        <span class="error-message" *ngIf="usuarioForm.get('password')?.errors?.['required'] && usuarioForm.get('password')?.touched">
+          La contraseña es requerida
+        </span>
       </div>
 
       <div class="form-grupo">
@@ -119,12 +130,15 @@
             {{ r.nombre }}
           </option>
         </select>
+        <span class="error-message" *ngIf="usuarioForm.get('rolId')?.errors?.['required'] && usuarioForm.get('rolId')?.touched">
+          El rol es requerido
+        </span>
       </div>
 
       <div class="acciones">
-        <button type="submit" [disabled]="formAlta.invalid" class="btn-guardar">
+        <button type="submit" [disabled]="usuarioForm.invalid" class="btn-guardar">
           <span class="icono">✅</span>
-          Guardar
+          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
         </button>
         <button type="button" (click)="cerrarModal()" class="btn-cancelar">
           <span class="icono">❌</span>

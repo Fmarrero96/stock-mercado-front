@@ -37,59 +37,15 @@
       </thead>
       <tbody>
         <tr *ngFor="let p of filtrados">
-          <!-- Fila editable -->
-          <ng-container *ngIf="editandoId === p.id; else verFila">
-            <td>
-              <input 
-                [formControl]="$any(formEdicion.get('nombre'))" 
-                class="edit-input"
-                placeholder="Nombre"
-              />
-            </td>
-            <td>
-              <input 
-                [formControl]="$any(formEdicion.get('email'))" 
-                class="edit-input"
-                placeholder="Email"
-                type="email"
-              />
-            </td>
-            <td>
-              <input 
-                [formControl]="$any(formEdicion.get('telefono'))" 
-                class="edit-input"
-                placeholder="Teléfono"
-              />
-            </td>
-            <td>
-              <input 
-                [formControl]="$any(formEdicion.get('direccion'))" 
-                class="edit-input"
-                placeholder="Dirección"
-              />
-            </td>
-            <td class="actions">
-              <button class="btn-icon success" (click)="guardarEdicion(p.id)" title="Guardar">
-                <span class="icon">💾</span>
-              </button>
-              <button class="btn-icon danger" (click)="cancelarEdicion()" title="Cancelar">
-                <span class="icon">❌</span>
-              </button>
-            </td>
-          </ng-container>
-
-          <!-- Fila normal -->
-          <ng-template #verFila>
-            <td>{{ p.nombre }}</td>
-            <td>{{ p.email }}</td>
-            <td>{{ p.telefono }}</td>
-            <td>{{ p.direccion }}</td>
-            <td class="actions">
-              <button class="btn-icon primary" (click)="comenzarEdicion(p)" title="Editar">
-                <span class="icon">✏️</span>
-              </button>
-            </td>
-          </ng-template>
+          <td>{{ p.nombre }}</td>
+          <td>{{ p.email }}</td>
+          <td>{{ p.telefono }}</td>
+          <td>{{ p.direccion }}</td>
+          <td class="actions">
+            <button class="btn-icon primary" (click)="abrirModal(p)" title="Editar">
+              <span class="icon">✏️</span>
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -108,13 +64,13 @@
   <div class="modal-backdrop" (click)="cerrarModal()"></div>
   <div class="modal-content">
     <div class="modal-header">
-      <h3>Nuevo Proveedor</h3>
+      <h3>{{ modoEdicion ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h3>
       <button class="btn-icon" (click)="cerrarModal()">
         <span class="icon">✖️</span>
       </button>
     </div>
 
-    <form [formGroup]="formAlta" (ngSubmit)="guardarProveedor()" class="modal-body">
+    <form [formGroup]="proveedorForm" (ngSubmit)="guardarProveedor()" class="modal-body">
       <div class="form-group">
         <label>Nombre</label>
         <input 
@@ -122,7 +78,7 @@
           type="text"
           placeholder="Ingrese el nombre"
         />
-        <span class="error-message" *ngIf="formAlta.get('nombre')?.errors?.['required'] && formAlta.get('nombre')?.touched">
+        <span class="error-message" *ngIf="proveedorForm.get('nombre')?.errors?.['required'] && proveedorForm.get('nombre')?.touched">
           El nombre es requerido
         </span>
       </div>
@@ -134,10 +90,10 @@
           type="email"
           placeholder="Ingrese el email"
         />
-        <span class="error-message" *ngIf="formAlta.get('email')?.errors?.['required'] && formAlta.get('email')?.touched">
+        <span class="error-message" *ngIf="proveedorForm.get('email')?.errors?.['required'] && proveedorForm.get('email')?.touched">
           El email es requerido
         </span>
-        <span class="error-message" *ngIf="formAlta.get('email')?.errors?.['email'] && formAlta.get('email')?.touched">
+        <span class="error-message" *ngIf="proveedorForm.get('email')?.errors?.['email'] && proveedorForm.get('email')?.touched">
           El email no es válido
         </span>
       </div>
@@ -159,6 +115,7 @@
           placeholder="Ingrese la dirección"
         />
       </div>
+    
 
       <div class="modal-footer">
         <button type="button" class="btn-secondary" (click)="cerrarModal()">
@@ -167,9 +124,9 @@
         <button 
           type="submit" 
           class="btn-primary" 
-          [disabled]="formAlta.invalid"
+          [disabled]="proveedorForm.invalid"
         >
-          Guardar
+          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
         </button>
       </div>
     </form>

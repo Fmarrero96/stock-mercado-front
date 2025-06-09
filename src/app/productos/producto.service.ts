@@ -38,4 +38,8 @@ export class ProductoService {
   buscarPorCodigo(codigo: string): Observable<Producto> {
     return this.http.get<Producto>(`${this.apiUrl}/codigo-barra/${codigo}`);
   }
+
+  buscarPorNombre(nombre: string): Observable<Producto[]> {
+    return this.http.get<Producto[]>(`${this.apiUrl}/buscar?nombre=${encodeURIComponent(nombre)}`);
+  }
 }

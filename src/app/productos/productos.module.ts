@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { ProductoListadoComponent } from './listado/listado.component';
 import { ProductoService } from './producto.service';
+import { CategoriaService } from '../categorias/categoria.service';
 
 const routes: Routes = [
   { path: '', component: ProductoListadoComponent }
@@ -23,7 +24,8 @@ const routes: Routes = [
     HttpClientModule
   ],
   providers: [
-    ProductoService
+    ProductoService,
+    CategoriaService
   ]
 })
 export class ProductosModule { } 

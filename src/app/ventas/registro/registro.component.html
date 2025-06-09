@@ -1,9 +1,11 @@
-<h2>Registrar venta</h2>
+<div class="page-header">
+  <h2>Registrar venta</h2>
+</div>
 
 <form [formGroup]="formBusqueda" (ngSubmit)="buscarYAgregar()">
-  <div class="form-group">
-    <label for="codigoBarras">Código de barras</label>
+  <div class="form-group form-group-flex">
     <div class="search-input">
+      <label for="codigoBarras">Código de barras</label>
       <input 
         id="codigoBarras" 
         type="text" 
@@ -14,13 +16,52 @@
       />
       <i class="fas fa-barcode"></i>
     </div>
+    <button type="button" class="btn-buscar-nombre" (click)="abrirModalBusqueda()">
+      <i class="fas fa-search"></i> Buscar por nombre
+    </button>
   </div>
 </form>
+
+<!-- Modal de búsqueda por nombre -->
+<div class="modal-busqueda" *ngIf="mostrarModalBusqueda">
+  <div class="modal-contenido">
+    <div class="modal-header">
+      <h3>Buscar producto por nombre</h3>
+      <button class="btn-cerrar" (click)="cerrarModalBusqueda()">&times;</button>
+    </div>
+    <div class="modal-body modal-body-centrado">
+      <input type="text" [(ngModel)]="filtroNombre" (input)="filtrarProductosPorNombre()" placeholder="Ingrese nombre de producto..." autofocus class="input-busqueda-centrado" />
+      <table class="tabla-modal-productos">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Stock</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prod of productosFiltrados" (click)="agregarProductoDesdeModal(prod)">
+            <td>
+              <div class="info-producto-modal">
+                <span class="nombre">{{ prod.nombre }}</span>
+              </div>
+            </td>
+            <td class="precio">{{ prod.precioVenta | currency:'$' }}</td>
+            <td class="stock" [class.stock-bajo]="prod.stock < prod.stockMinimo">{{ prod.stock }}</td>
+          </tr>
+          <tr *ngIf="productosFiltrados.length === 0">
+            <td colspan="3">No se encontraron productos.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 
 <div class="producto-preview" *ngIf="productoEncontrado">
   <div class="producto-info">
     <h3>{{ productoEncontrado.nombre }}</h3>
-    <p class="precio">{{ productoEncontrado.precioVenta | currency:'ARS' }}</p>
+    <p class="precio">{{ productoEncontrado.precioVenta | currency:'$' }}</p>
     <p class="stock" [class.stock-bajo]="productoEncontrado.stock < productoEncontrado.stockMinimo">
       Stock disponible: {{ productoEncontrado.stock }}
     </p>
@@ -42,7 +83,7 @@
       <tbody>
         <tr *ngFor="let item of seleccionados; let i = index">
           <td>{{ item.producto.nombre }}</td>
-          <td>{{ item.producto.precioVenta | currency:'ARS' }}</td>
+          <td>{{ item.producto.precioVenta | currency:'$' }}</td>
           <td class="cantidad-cell">
             <span class="stock-warning" *ngIf="item.cantidad > item.producto.stock">
               <i class="fas fa-exclamation-triangle"></i>
@@ -57,7 +98,7 @@
               class="cantidad-input"
             />
           </td>
-          <td>{{ item.subtotal | currency:'ARS' }}</td>
+          <td>{{ item.subtotal | currency:'$' }}</td>
           <td>
             <button class="btn-eliminar" (click)="quitarItem(i)" title="Eliminar producto">
               <span>❌</span>
@@ -71,7 +112,7 @@
 
 <div class="resumen-venta" *ngIf="seleccionados.length > 0">
   <div class="total-info">
-    <p class="total">Total: <span>{{ total | currency:'ARS' }}</span></p>
+    <p class="total">Total: <span>{{ total | currency:'$' }}</span></p>
     <p class="items">{{ seleccionados.length }} items</p>
   </div>
   <button class="btn-confirmar" (click)="confirmarVenta()" [disabled]="!puedeConfirmar">

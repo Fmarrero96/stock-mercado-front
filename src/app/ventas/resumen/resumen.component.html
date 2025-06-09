@@ -1,4 +1,6 @@
-<h2>Resumen de ventas</h2>
+<div class="page-header">
+  <h2>Resumen de ventas</h2>
+</div>
 
 <div *ngIf="cargando" class="cargando">
   <i class="fas fa-spinner fa-spin"></i>
@@ -26,35 +28,39 @@
     </div>
 
     <div class="filtros" *ngIf="ventas.length > 0">
-      <div class="form-group">
-        <label for="fechaDesde">Desde:</label>
-        <input 
-          id="fechaDesde"
-          type="date" 
-          [(ngModel)]="fechaDesde" 
-          (change)="aplicarFiltros()" 
-        />
+      <div class="filtro-grupo-fechas">
+        <div class="form-group">
+          <label for="fechaDesde">Desde:</label>
+          <input 
+            id="fechaDesde"
+            type="date" 
+            [(ngModel)]="fechaDesde" 
+            (change)="aplicarFiltros()" 
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="fechaHasta">Hasta:</label>
+          <input 
+            id="fechaHasta"
+            type="date" 
+            [(ngModel)]="fechaHasta" 
+            (change)="aplicarFiltros()" 
+          />
+        </div>
       </div>
 
-      <div class="form-group">
-        <label for="fechaHasta">Hasta:</label>
-        <input 
-          id="fechaHasta"
-          type="date" 
-          [(ngModel)]="fechaHasta" 
-          (change)="aplicarFiltros()" 
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="busqueda">Buscar producto:</label>
-        <input 
-          id="busqueda"
-          type="text" 
-          [(ngModel)]="busquedaProducto" 
-          (input)="aplicarFiltros()" 
-          placeholder="Ej: Yerba" 
-        />
+      <div class="filtro-grupo-busqueda">
+        <div class="form-group">
+          <label for="busqueda">Buscar producto:</label>
+          <input 
+            id="busqueda"
+            type="text" 
+            [(ngModel)]="busquedaProducto" 
+            (input)="aplicarFiltros()" 
+            placeholder="Ej: Yerba" 
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -64,7 +70,7 @@
     <ul>
       <li *ngFor="let item of totalesAgrupados">
         <strong>{{ item.clave }}</strong>
-        <span>{{ item.total | currency:'ARS' }}</span>
+        <span>{{ item.total | currency:'$' }}</span>
       </li>
     </ul>
     <button class="btn-exportar" (click)="exportarResumen()">
@@ -91,7 +97,7 @@
             <tr>
               <td>{{ v.id }}</td>
               <td>{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-              <td>{{ v.total | currency:'ARS' }}</td>
+              <td>{{ v.total | currency:'$' }}</td>
               <td>{{ v.detalles?.length || 0 }}</td>
               <td>
                 <button (click)="toggleDetalle(i)">
@@ -117,8 +123,8 @@
                     <tr *ngFor="let d of v.detalles">
                       <td>{{ d.producto?.nombre || 'Producto no encontrado' }}</td>
                       <td>{{ d.cantidad }}</td>
-                      <td>{{ d.precioUnitario | currency:'ARS' }}</td>
-                      <td>{{ d.precioUnitario * d.cantidad | currency:'ARS' }}</td>
+                      <td>{{ d.precioUnitario | currency:'$' }}</td>
+                      <td>{{ d.precioUnitario * d.cantidad | currency:'$' }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -146,9 +152,4 @@
     <i class="fas fa-box-open"></i>
     <p>No hay ventas registradas.</p>
   </div>
-
-  <button class="btn-exportar" (click)="cargarVentas()" [disabled]="cargando">
-    <i class="fas fa-sync-alt" [class.fa-spin]="cargando"></i>
-    Recargar
-  </button>
 </div>

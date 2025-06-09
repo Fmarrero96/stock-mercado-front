@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Proveedor, ProveedorService } from '../proveedor.service';
-import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-listado',
@@ -13,19 +13,12 @@ export class ListadoComponent implements OnInit {
   filtrados: Proveedor[] = [];
   termino = '';
   error = '';
-  editandoId: number | null = null;
-  formEdicion!: FormGroup;
   mostrarModal = false;
-  formAlta!: FormGroup;
+  proveedorForm!: FormGroup;
+  modoEdicion = false;
+  proveedorEditando: Proveedor | null = null;
 
-  constructor(private proveedorService: ProveedorService, private fb: FormBuilder) {
-    this.formEdicion = this.fb.group({
-      nombre: new FormControl(''),
-      email: new FormControl(''),
-      telefono: new FormControl(''),
-      direccion: new FormControl('')
-    });
-  }
+  constructor(private proveedorService: ProveedorService, private fb: FormBuilder) { }
 
   ngOnInit(): void {
     this.cargar();
@@ -48,53 +41,56 @@ export class ListadoComponent implements OnInit {
     );
   }
 
-  abrirModal(): void {
-    this.formAlta = this.fb.group({
-      nombre: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: [''],
-      direccion: ['']
-    });
+  abrirModal(proveedor?: Proveedor): void {
     this.mostrarModal = true;
+    if (proveedor) {
+      this.modoEdicion = true;
+      this.proveedorEditando = proveedor;
+      this.proveedorForm = this.fb.group({
+        nombre: [proveedor.nombre, Validators.required],
+        email: [proveedor.email, [Validators.required, Validators.email]],
+        telefono: [proveedor.telefono],
+        direccion: [proveedor.direccion]
+      });
+    } else {
+      this.modoEdicion = false;
+      this.proveedorEditando = null;
+      this.proveedorForm = this.fb.group({
+        nombre: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        telefono: [''],
+        direccion: ['']
+      });
+    }
   }
 
   cerrarModal(): void {
     this.mostrarModal = false;
+    this.proveedorForm.reset();
+    this.proveedorEditando = null;
+    this.modoEdicion = false;
+    this.error = '';
   }
 
   guardarProveedor(): void {
-    if (this.formAlta.invalid) return;
-    this.proveedorService.crearProveedor(this.formAlta.value).subscribe({
-      next: () => {
-        this.cerrarModal();
-        this.cargar();
-      },
-      error: () => alert('Error al crear proveedor')
-    });
-  }
+    if (this.proveedorForm.invalid) return;
 
-  comenzarEdicion(p: Proveedor): void {
-    this.editandoId = p.id;
-    this.formEdicion = this.fb.group({
-      nombre: [p.nombre],
-      email: [p.email],
-      telefono: [p.telefono],
-      direccion: [p.direccion]
-    });
-  }
-
-  guardarEdicion(id: number): void {
-    if (this.formEdicion.invalid) return;
-    this.proveedorService.actualizarProveedor(id, this.formEdicion.value).subscribe({
-      next: () => {
-        this.editandoId = null;
-        this.cargar();
-      },
-      error: () => alert('Error al guardar proveedor')
-    });
-  }
-
-  cancelarEdicion(): void {
-    this.editandoId = null;
+    if (this.modoEdicion && this.proveedorEditando) {
+      this.proveedorService.actualizarProveedor(this.proveedorEditando.id, this.proveedorForm.value).subscribe({
+        next: () => {
+          this.cerrarModal();
+          this.cargar();
+        },
+        error: () => this.error = 'Error al actualizar proveedor'
+      });
+    } else {
+      this.proveedorService.crearProveedor(this.proveedorForm.value).subscribe({
+        next: () => {
+          this.cerrarModal();
+          this.cargar();
+        },
+        error: () => this.error = 'Error al crear proveedor'
+      });
+    }
   }
 }

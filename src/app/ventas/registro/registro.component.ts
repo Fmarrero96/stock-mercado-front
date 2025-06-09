@@ -24,6 +24,10 @@ export class RegistroComponent implements OnInit {
   mostrarToast = false;
   productoEncontrado: Producto | null = null;
   @ViewChild('codigoBarrasInput') codigoBarrasInput!: ElementRef;
+  productosFiltrados: Producto[] = [];
+  mostrarModalBusqueda = false;
+  filtroNombre = '';
+  todosLosProductos: Producto[] = [];
 
   constructor(
     private productoService: ProductoService, 
@@ -157,5 +161,36 @@ export class RegistroComponent implements OnInit {
     this.toastMensaje = msg;
     this.mostrarToast = true;
     setTimeout(() => this.mostrarToast = false, 3000);
+  }
+
+  abrirModalBusqueda(): void {
+    this.filtroNombre = '';
+    this.productosFiltrados = [];
+    this.mostrarModalBusqueda = true;
+    this.productoService.obtenerProductos().subscribe(productos => {
+      this.todosLosProductos = productos;
+      this.productosFiltrados = productos.slice(0, 10);
+    });
+  }
+
+  cerrarModalBusqueda(): void {
+    this.mostrarModalBusqueda = false;
+  }
+
+  filtrarProductosPorNombre(): void {
+    const filtro = this.filtroNombre.trim().toLowerCase();
+    if (filtro.length === 0) {
+      this.productosFiltrados = this.todosLosProductos.slice(0, 10);
+    } else {
+      this.productosFiltrados = this.todosLosProductos
+        .filter(p => p.nombre.toLowerCase().includes(filtro))
+        .slice(0, 10);
+    }
+  }
+
+  agregarProductoDesdeModal(producto: Producto): void {
+    this.productoEncontrado = producto;
+    this.agregarProductoEncontrado();
+    this.cerrarModalBusqueda();
   }
 }

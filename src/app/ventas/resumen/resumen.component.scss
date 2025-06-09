@@ -8,19 +8,28 @@ $gray-medium: #e2e8f0;
 $gray-dark: #64748b;
 $text-primary: #2c3e50;
 
+// Estilos generales de página
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h2 {
+    font-size: 1.8rem;
+    color: $text-primary;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
+}
+
 // Contenedor principal
 :host {
   display: block;
-  padding: 2rem;
+  padding: 1rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
-}
-
-h2 {
-  color: $text-primary;
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  font-weight: 600;
 }
 
 // Estado de carga
@@ -79,11 +88,48 @@ h2 {
     border-radius: 8px;
     font-size: 0.95rem;
     transition: all 0.2s;
+    box-sizing: border-box; /* Asegura que padding y border se incluyan en el width */
 
     &:focus {
       outline: none;
       border-color: $primary;
       box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    }
+  }
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem; /* Espacio entre los grupos de filtros (fechas y búsqueda) */
+  /* Las reglas de .form-group que estaban aquí han sido eliminadas para evitar conflictos */
+
+  .filtro-grupo-fechas {
+    display: flex;
+    gap: 1rem; /* Espacio entre 'Desde' y 'Hasta' */
+    flex: 1 1 auto; /* Permite que este grupo crezca, manteniendo su min-width */
+    min-width: 300px; /* Ancho mínimo para el grupo de fechas */
+
+    .form-group {
+      flex: 1 1 0; /* Distribuye el espacio equitativamente entre los inputs de fecha */
+    }
+  }
+
+  .filtro-grupo-busqueda {
+    flex: 1 1 auto; /* Permite que este grupo crezca */
+    min-width: 250px; /* Ancho mínimo para el input de búsqueda */
+    
+    .form-group {
+      width: 100%; /* Asegura que el input ocupe todo el ancho de su form-group */
+    }
+  }
+
+  /* Media queries para adaptar la disposición en pantallas más pequeñas */
+  @media (max-width: 900px) {
+    .filtro-grupo-fechas,
+    .filtro-grupo-busqueda {
+      flex: 1 1 100%; /* Cada grupo ocupa todo el ancho en pantallas pequeñas */
+      min-width: unset; /* Elimina el min-width para permitir que ocupe todo el ancho */
     }
   }
 }

@@ -9,6 +9,7 @@ export interface Producto {
   activo: boolean;
   stockMinimo: number;
   stock: number;
+  categoriaId: number;
 }
 
 export interface ProductoCrearDTO {
@@ -19,4 +20,5 @@ export interface ProductoCrearDTO {
   precioVenta: number;
   stock: number;
   stockMinimo: number;
+  categoriaId: number;
 } 
