@@ -1,76 +1,150 @@
-<h2>Usuarios</h2>
+<div class="page-header">
+  <h2>Gestión de Usuarios</h2>
+  <button class="btn-primary" (click)="abrirModal()">
+    <span class="icon">➕</span>
+    Nuevo usuario
+  </button>
+</div>
 
-<button (click)="abrirModal()">➕ Nuevo usuario</button>
+<div class="filtros">
+  <div class="filtro-grupo">
+    <input 
+      type="text" 
+      [(ngModel)]="termino" 
+      (input)="aplicarFiltros()" 
+      placeholder="🔍 Buscar por nombre o email..."
+      class="filtro-input"
+    />
+  </div>
+  
+  <div class="filtro-grupo">
+    <select 
+      [(ngModel)]="rol" 
+      (change)="aplicarFiltros()"
+      class="filtro-select"
+    >
+      <option value="">Todos los roles</option>
+      <option *ngFor="let r of rolesDisponibles" [value]="r.id">{{ r.nombre }}</option>
+    </select>
+  </div>
+</div>
 
-<!-- Modal de alta -->
+<div class="mensaje error" *ngIf="error">{{ error }}</div>
+
+<div class="tabla-contenedor" *ngIf="filtrados.length > 0; else sinUsuarios">
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let u of usuariosPaginados">
+        <td>{{ u.nombre }}</td>
+        <td>{{ u.email }}</td>
+        <td>
+          <span class="badge">{{ getNombreRol(u.rolId) }}</span>
+        </td>
+        <td>
+          <div class="acciones-tabla">
+            <button class="btn-icon primary" (click)="abrirModal(u)" title="Editar">
+              <span class="icon">✏️</span>
+            </button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="paginacion" *ngIf="totalPaginas > 1">
+  <button 
+    class="btn-pagina" 
+    (click)="paginaActual = paginaActual - 1" 
+    [disabled]="paginaActual === 1"
+  >
+    <span class="icono">⬅️</span>
+    Anterior
+  </button>
+  
+  <span class="pagina-info">Página {{ paginaActual }} de {{ totalPaginas }}</span>
+  
+  <button 
+    class="btn-pagina" 
+    (click)="paginaActual = paginaActual + 1" 
+    [disabled]="paginaActual === totalPaginas"
+  >
+    Siguiente
+    <span class="icono">➡️</span>
+  </button>
+</div>
+
+<ng-template #sinUsuarios>
+  <div class="mensaje-vacio">
+    <p>No hay usuarios que coincidan con los filtros.</p>
+  </div>
+</ng-template>
+
+<!-- Modal de alta/edición -->
 <div class="modal" *ngIf="mostrarModal">
   <div class="modal-contenido">
-    <h3>Nuevo Usuario</h3>
+    <h3>{{ modoEdicion ? 'Editar Usuario' : 'Nuevo Usuario' }}</h3>
+    <button class="cerrar-modal" (click)="cerrarModal()">✖️</button>
 
-    <form [formGroup]="formAlta" (ngSubmit)="guardarNuevoUsuario()">
-      <label>Nombre</label>
-      <input formControlName="nombre" type="text" />
+    <form [formGroup]="usuarioForm" (ngSubmit)="guardarUsuario()">
+      <div class="form-grupo">
+        <label>Nombre</label>
+        <input formControlName="nombre" type="text" class="form-control" placeholder="Ingrese el nombre" />
+        <span class="error-message" *ngIf="usuarioForm.get('nombre')?.errors?.['required'] && usuarioForm.get('nombre')?.touched">
+          El nombre es requerido
+        </span>
+      </div>
 
-      <label>Email</label>
-      <input formControlName="email" type="email" />
+      <div class="form-grupo">
+        <label>Email</label>
+        <input formControlName="email" type="email" class="form-control" placeholder="Ingrese el email" />
+        <span class="error-message" *ngIf="usuarioForm.get('email')?.errors?.['required'] && usuarioForm.get('email')?.touched">
+          El email es requerido
+        </span>
+        <span class="error-message" *ngIf="usuarioForm.get('email')?.errors?.['email'] && usuarioForm.get('email')?.touched">
+          El email no es válido
+        </span>
+      </div>
 
-      <label>Contraseña</label>
-      <input formControlName="password" type="password" />
+      <div class="form-grupo">
+        <label>Contraseña</label>
+        <input formControlName="password" type="password" class="form-control" placeholder="Dejar en blanco para no cambiar" [required]="!modoEdicion" />
+        <span class="error-message" *ngIf="usuarioForm.get('password')?.errors?.['required'] && usuarioForm.get('password')?.touched">
+          La contraseña es requerida
+        </span>
+      </div>
 
-      <label>Rol</label>
-      <select formControlName="rolId">
-        <option value="">Seleccione un rol</option>
-        <option *ngFor="let r of rolesDisponibles" [value]="r.id">{{ r.nombre }}</option>
-      </select>
+      <div class="form-grupo">
+        <label>Rol</label>
+        <select formControlName="rolId" class="form-control">
+          <option value="">Seleccione un rol</option>
+          <option *ngFor="let r of rolesDisponibles" [value]="r.id">
+            {{ r.nombre }}
+          </option>
+        </select>
+        <span class="error-message" *ngIf="usuarioForm.get('rolId')?.errors?.['required'] && usuarioForm.get('rolId')?.touched">
+          El rol es requerido
+        </span>
+      </div>
 
       <div class="acciones">
-        <button type="submit" [disabled]="formAlta.invalid">✅ Guardar</button>
-        <button type="button" (click)="cerrarModal()">❌ Cancelar</button>
+        <button type="submit" [disabled]="usuarioForm.invalid" class="btn-guardar">
+          <span class="icono">✅</span>
+          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+        </button>
+        <button type="button" (click)="cerrarModal()" class="btn-cancelar">
+          <span class="icono">❌</span>
+          Cancelar
+        </button>
       </div>
     </form>
   </div>
 </div>
-
-
-<div class="filtros">
-  <input type="text" [(ngModel)]="termino" (input)="aplicarFiltros()" placeholder="Buscar por nombre o email..." />
-  
-  <select [(ngModel)]="rol" (change)="aplicarFiltros()">
-    <option value="">Todos los roles</option>
-    <option *ngFor="let r of rolesDisponibles" [value]="r.id">{{ r.nombre }}</option>
-  </select>
-</div>
-
-<p *ngIf="error" class="error">{{ error }}</p>
-
-<table *ngIf="filtrados.length > 0; else sinUsuarios">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Email</th>
-      <th>Rol</th>
-      <th>Estado</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let u of usuariosPaginados">
-      <td>{{ u.nombre }}</td>
-      <td>{{ u.email }}</td>
-      <td>{{ u.rol?.nombre }}</td>
-      <td>
-        <a [routerLink]="['/usuarios/editar', u.id]">✏️ Editar</a>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<div class="paginacion" *ngIf="totalPaginas > 1">
-    <button (click)="paginaActual = paginaActual - 1" [disabled]="paginaActual === 1">⬅️ Anterior</button>
-    <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
-    <button (click)="paginaActual = paginaActual + 1" [disabled]="paginaActual === totalPaginas">Siguiente ➡️</button>
-</div>
-
-<ng-template #sinUsuarios>
-  <p>No hay usuarios que coincidan con los filtros.</p>
-</ng-template>

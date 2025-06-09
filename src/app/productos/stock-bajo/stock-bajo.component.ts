@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Producto, ProductoService } from '../producto.service';
+import { ProductoService } from '../producto.service';
+import { Producto , ProductoCrearDTO } from '../producto.model';
 
 @Component({
   selector: 'app-stock-bajo',

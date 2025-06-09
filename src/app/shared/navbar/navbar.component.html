@@ -1,0 +1,27 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <img src="src/assets/icono.png" class="logo">
+    <span class="brand-name">VendeYA  </span>
+  </div>
+
+  <div class="navbar-menu">
+    <ng-container *ngFor="let item of menuItems">
+      <a 
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.path === '/ventas' }"
+        class="menu-item"
+      >
+        <span class="item-icon">{{ item.icon }}</span>
+        <span class="item-label">{{ item.label }}</span>
+      </a>
+    </ng-container>
+  </div>
+
+  <div class="navbar-user">
+    <button class="user-menu">
+      <span class="user-icon">👤</span>
+      <span class="user-name">Usuario</span>
+    </button>
+  </div>
+</nav> 

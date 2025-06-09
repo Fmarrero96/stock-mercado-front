@@ -7,7 +7,7 @@ export interface Usuario {
   nombre: string;
   email: string;
   password?: string;
-  rol: Rol;
+  rolId: number;
 }
 
 export interface Rol {

@@ -44,7 +44,7 @@ export class EditarComponent implements OnInit {
           this.form.patchValue({
             ...u,
             password: '',
-            rolId: u.rol?.id
+            rolId: u.rolId
           });
         },
         error: () => this.error = 'No se pudo cargar el usuario'

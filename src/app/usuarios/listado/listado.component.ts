@@ -16,7 +16,9 @@ export class ListadoComponent implements OnInit {
   termino = '';
   rol = '';
   mostrarModal = false;
-  formAlta!: FormGroup;
+  usuarioForm!: FormGroup;
+  modoEdicion = false;
+  usuarioEditando: Usuario | null = null;
 
   rolesDisponibles: Rol[] = [];
 
@@ -55,43 +57,81 @@ export class ListadoComponent implements OnInit {
     });
   }
 
-  abrirModal(): void {
+  abrirModal(usuario?: Usuario): void {
     this.mostrarModal = true;
-    this.formAlta = this.fb.group({
-      nombre: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-      rolId: ['', Validators.required]
-    });
+    if (usuario) {
+      this.modoEdicion = true;
+      this.usuarioEditando = usuario;
+      this.usuarioForm = this.fb.group({
+        nombre: [usuario.nombre, Validators.required],
+        email: [usuario.email, [Validators.required, Validators.email]],
+        password: [''],
+        rolId: [usuario.rolId as number, Validators.required]
+      });
+    } else {
+      this.modoEdicion = false;
+      this.usuarioEditando = null;
+      this.usuarioForm = this.fb.group({
+        nombre: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', Validators.required],
+        rolId: ['', Validators.required]
+      });
+    }
   }
   
   cerrarModal(): void {
     this.mostrarModal = false;
+    this.usuarioForm.reset();
+    this.usuarioEditando = null;
+    this.modoEdicion = false;
+    this.error = '';
   }
   
-  guardarNuevoUsuario(): void {
-    if (this.formAlta.invalid) return;
+  guardarUsuario(): void {
+    if (this.usuarioForm.invalid) return;
 
-    // Validar email duplicado antes de enviar
-    const emailExiste = this.usuarios.some(u => u.email.toLowerCase() === nuevoUsuario.email.toLowerCase());
-    if (emailExiste) {
-      alert('Ya existe un usuario con ese email 📧');
-      return;
+    const formValue = this.usuarioForm.value;
+    
+    if (this.modoEdicion && this.usuarioEditando) {
+      const usuarioActualizado = {
+        ...formValue,
+        id: this.usuarioEditando.id,
+        rolId: Number(formValue.rolId) 
+      };
+
+      if (!formValue.password) {
+        delete usuarioActualizado.password; 
+      }
+
+      this.usuarioService.actualizarUsuario(this.usuarioEditando.id!, usuarioActualizado).subscribe({
+        next: () => {
+          this.cerrarModal();
+          this.cargarUsuarios();
+        },
+        error: () => alert('Error al actualizar usuario')
+      });
+
+    } else {
+      const emailExiste = this.usuarios.some(u => u.email.toLowerCase() === formValue.email.toLowerCase());
+      if (emailExiste) {
+        alert('Ya existe un usuario con ese email 📧');
+        return;
+      }
+    
+      const nuevoUsuario = {
+        ...formValue,
+        rolId: Number(formValue.rolId)
+      };
+    
+      this.usuarioService.crearUsuario(nuevoUsuario).subscribe({
+        next: () => {
+          this.cerrarModal();
+          this.cargarUsuarios();
+        },
+        error: () => alert('Error al crear usuario')
+      });
     }
-  
-    const formValue = this.formAlta.value;
-    const nuevoUsuario = {
-      ...formValue,
-      rol: this.rolesDisponibles.find(r => r.id === formValue.rolId)
-    };
-  
-    this.usuarioService.crearUsuario(nuevoUsuario).subscribe({
-      next: () => {
-        this.cerrarModal();
-        this.cargarUsuarios();
-      },
-      error: () => alert('Error al crear usuario')
-    });
   }
 
   aplicarFiltros(): void {
@@ -100,38 +140,22 @@ export class ListadoComponent implements OnInit {
         u.nombre.toLowerCase().includes(this.termino.toLowerCase()) ||
         u.email.toLowerCase().includes(this.termino.toLowerCase())
       );
-      const coincideRol = this.rol === '' || u.rol.id?.toString() === this.rol;
+      const coincideRol = this.rol === '' || u.rolId === Number(this.rol);
       return coincideTermino && coincideRol;
     });
   }
 
-
-  toast(mensaje: string): void {
-    const div = document.createElement('div');
-    div.textContent = mensaje;
-    div.style.position = 'fixed';
-    div.style.bottom = '20px';
-    div.style.left = '50%';
-    div.style.transform = 'translateX(-50%)';
-    div.style.background = '#323232';
-    div.style.color = 'white';
-    div.style.padding = '10px 20px';
-    div.style.borderRadius = '8px';
-    div.style.zIndex = '1000';
-    div.style.opacity = '0.9';
-  
-    document.body.appendChild(div);
-  
-    setTimeout(() => document.body.removeChild(div), 3000);
+  getNombreRol(rolId: number): string {
+    const rol = this.rolesDisponibles.find(r => r.id === rolId);
+    return rol ? rol.nombre : 'Rol no encontrado';
   }
 
-get totalPaginas(): number {
-  return Math.ceil(this.filtrados.length / this.usuariosPorPagina);
-}
+  get totalPaginas(): number {
+    return Math.ceil(this.filtrados.length / this.usuariosPorPagina);
+  }
 
-get usuariosPaginados(): Usuario[] {
-  const inicio = (this.paginaActual - 1) * this.usuariosPorPagina;
-  return this.filtrados.slice(inicio, inicio + this.usuariosPorPagina);
-}
-  
+  get usuariosPaginados(): Usuario[] {
+    const inicio = (this.paginaActual - 1) * this.usuariosPorPagina;
+    return this.filtrados.slice(inicio, inicio + this.usuariosPorPagina);
+  }
 }

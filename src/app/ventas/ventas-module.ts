@@ -5,7 +5,6 @@ import { VentasRoutingModule } from './ventas-routing-module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ResumenComponent } from './resumen/resumen.component';
 
-
 @NgModule({
   declarations: [
     RegistroComponent,
@@ -18,6 +17,7 @@ import { ResumenComponent } from './resumen/resumen.component';
     FormsModule
   ],
   exports: [
+    RegistroComponent,
     ResumenComponent
   ]
 })

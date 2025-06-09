@@ -128,7 +128,7 @@ export class ResumenComponent implements OnInit {
       Total: venta.total,
       'Cantidad Items': venta.detalles.length,
       Detalles: venta.detalles.map(d => 
-        `${d.producto?.nombre} (${d.cantidad} x ${d.precioUnitario})`
+        `${d.producto?.nombre} (${d.cantidad})`
       ).join(', ')
     }));
 
