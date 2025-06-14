@@ -31,8 +31,9 @@ export class NavbarComponent implements OnInit {
 
   cargarNombreUsuario(): void {
     const usuario = this.authService.usuarioActual;
-    if (usuario && usuario.nombre) {
-      this.nombreUsuario = usuario.nombre;
+    console.log("que usuario llega usuario",usuario);
+    if (usuario) {
+      this.nombreUsuario = usuario;
     } else {
       this.nombreUsuario = 'Usuario';
     }
@@ -48,6 +49,6 @@ export class NavbarComponent implements OnInit {
 
   cerrarSesion(): void {
     this.authService.logout();
-    this.router.navigate(['/auth/login']); // Redirigir a la página de login
+    this.router.navigate(['/login']); // Redirigir a la página de login
   }
 } 

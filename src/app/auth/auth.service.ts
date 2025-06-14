@@ -20,8 +20,7 @@ export class AuthService {
           localStorage.setItem('token', res.token);
           try {
             const decodedToken: any = jwtDecode(res.token);
-            console.log(decodedToken);
-            localStorage.setItem('usuario', JSON.stringify(decodedToken.username));
+            localStorage.setItem('usuario', JSON.stringify(decodedToken.username).replace(/"/g, ''));
           } catch (e) {
             console.error('Error decodificando el token:', e);
           }
@@ -53,9 +52,7 @@ export class AuthService {
 
   get usuarioActual(): any {
     if (isPlatformBrowser(this.platformId)) {
-      console.log(localStorage.getItem('usuario'));
-      const raw = localStorage.getItem('usuario');
-      return raw ? JSON.parse(raw) : null;
+      return localStorage.getItem('usuario');
     }
     return null;
   }
