@@ -15,7 +15,7 @@ export class NavbarComponent implements OnInit {
     { path: '/ventas/resumen', icon: '💰', label: 'Ventas' },
     { path: '/productos', icon: '📦', label: 'Productos' },
     { path: '/proveedores', icon: '🤝', label: 'Proveedores' },
-    { path: '/usuarios', icon: '👥', label: 'Usuarios' } // Marcar como solo para admin
+    { path: '/usuarios', icon: '👥', label: 'Usuarios'} // Marcar como solo para admin
   ];
 
   menuItems: any[] = []; // Los items que se mostrarán en el menú
@@ -25,7 +25,8 @@ export class NavbarComponent implements OnInit {
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.cargarNombreUsuario(); Llamar al nuevo método para filtrar
+    this.cargarNombreUsuario();
+    this.filterMenuItems(); // Llamar al nuevo método para filtrar
   }
 
   cargarNombreUsuario(): void {
@@ -37,12 +38,16 @@ export class NavbarComponent implements OnInit {
     }
   }
 
+  filterMenuItems(): void {
+    this.menuItems = this.allMenuItems;
+  }
+
   toggleMenuUsuario(): void {
     this.mostrarMenuUsuario = !this.mostrarMenuUsuario;
   }
 
   cerrarSesion(): void {
     this.authService.logout();
-    this.router.navigate(['/login']); // Redirigir a la página de login
+    this.router.navigate(['/auth/login']); // Redirigir a la página de login
   }
 } 
