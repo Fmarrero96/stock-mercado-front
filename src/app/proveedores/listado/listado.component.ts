@@ -56,11 +56,11 @@ export class ListadoComponent implements OnInit {
       this.modoEdicion = false;
       this.proveedorEditando = null;
       this.proveedorForm = this.fb.group({
-        nombre: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        telefono: [''],
-        direccion: ['']
-      });
+      nombre: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      telefono: [''],
+      direccion: ['']
+    });
     }
   }
 
@@ -77,20 +77,20 @@ export class ListadoComponent implements OnInit {
 
     if (this.modoEdicion && this.proveedorEditando) {
       this.proveedorService.actualizarProveedor(this.proveedorEditando.id, this.proveedorForm.value).subscribe({
-        next: () => {
-          this.cerrarModal();
-          this.cargar();
-        },
+      next: () => {
+        this.cerrarModal();
+        this.cargar();
+      },
         error: () => this.error = 'Error al actualizar proveedor'
-      });
+    });
     } else {
       this.proveedorService.crearProveedor(this.proveedorForm.value).subscribe({
-        next: () => {
+      next: () => {
           this.cerrarModal();
-          this.cargar();
-        },
+        this.cargar();
+      },
         error: () => this.error = 'Error al crear proveedor'
-      });
-    }
+    });
+  }
   }
 }

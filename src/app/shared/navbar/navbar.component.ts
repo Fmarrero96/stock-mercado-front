@@ -9,27 +9,29 @@ import { Router } from '@angular/router';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit {
-  menuItems = [
+  // Definimos todos los items del menú, con una propiedad opcional 'adminOnly'
+  allMenuItems = [
     { path: '/ventas', icon: '🏠', label: 'Inicio' },
     { path: '/ventas/resumen', icon: '💰', label: 'Ventas' },
     { path: '/productos', icon: '📦', label: 'Productos' },
     { path: '/proveedores', icon: '🤝', label: 'Proveedores' },
-    { path: '/usuarios', icon: '👥', label: 'Usuarios' }
+    { path: '/usuarios', icon: '👥', label: 'Usuarios' } // Marcar como solo para admin
   ];
 
+  menuItems: any[] = []; // Los items que se mostrarán en el menú
   nombreUsuario: string | null = null;
   mostrarMenuUsuario: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.cargarNombreUsuario();
+    this.cargarNombreUsuario(); Llamar al nuevo método para filtrar
   }
 
   cargarNombreUsuario(): void {
     const usuario = this.authService.usuarioActual;
-    if (usuario) {
-      this.nombreUsuario = usuario;
+    if (usuario && usuario.nombre) {
+      this.nombreUsuario = usuario.nombre;
     } else {
       this.nombreUsuario = 'Usuario';
     }

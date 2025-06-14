@@ -44,6 +44,13 @@ export class ResumenComponent implements OnInit {
       next: (data) => {
         console.log('Ventas recibidas en el componente:', data);
         this.ventas = data.slice();
+        // Ordenar las ventas por fecha, las más recientes primero
+        this.ventas.sort((a, b) => {
+          const dateA = new Date(a.fecha);
+          const dateB = new Date(b.fecha);
+          return dateB.getTime() - dateA.getTime();
+        });
+
         this.filtradas = this.ventas;
         this.calcularTotales();
         this.cargando = false;
@@ -101,12 +108,18 @@ export class ResumenComponent implements OnInit {
 
       switch (this.modoAgrupacion) {
         case 'dia':
-          clave = fecha.toISOString().split('T')[0];
+          const dia = fecha.getDate().toString().padStart(2, '0');
+          const mesDia = (fecha.getMonth() + 1).toString().padStart(2, '0');
+          const anioDia = fecha.getFullYear();
+          clave = `${dia}-${mesDia}-${anioDia}`;
           break;
         case 'semana':
           const primerDiaSemana = new Date(fecha);
           primerDiaSemana.setDate(fecha.getDate() - fecha.getDay());
-          clave = primerDiaSemana.toISOString().split('T')[0];
+          const diaSemana = primerDiaSemana.getDate().toString().padStart(2, '0');
+          const mesSemana = (primerDiaSemana.getMonth() + 1).toString().padStart(2, '0');
+          const anioSemana = primerDiaSemana.getFullYear();
+          clave = `${diaSemana}-${mesSemana}-${anioSemana}`;
           break;
         case 'mes':
           clave = `${fecha.getFullYear()}-${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -117,8 +130,28 @@ export class ResumenComponent implements OnInit {
     });
 
     this.totalesAgrupados = Array.from(ventasPorPeriodo.entries())
-      .map(([clave, total]) => ({ clave, total }))
-      .sort((a, b) => a.clave.localeCompare(b.clave));
+      .map(([clave, total]) => ({
+        clave,
+        total
+      }))
+      .sort((a, b) => {
+        let dateA: Date;
+        let dateB: Date;
+
+        if (this.modoAgrupacion === 'dia' || this.modoAgrupacion === 'semana') {
+          // Parse DD-MM-YYYY
+          const [dayA, monthA, yearA] = a.clave.split('-').map(Number);
+          dateA = new Date(yearA, monthA - 1, dayA);
+          const [dayB, monthB, yearB] = b.clave.split('-').map(Number);
+          dateB = new Date(yearB, monthB - 1, dayB);
+        } else {
+          // Parse YYYY-MM
+          dateA = new Date(a.clave);
+          dateB = new Date(b.clave);
+        }
+
+        return dateB.getTime() - dateA.getTime(); // Orden descendente (más reciente primero)
+      });
   }
 
   exportarResumen(): void {

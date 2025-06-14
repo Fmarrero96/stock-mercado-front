@@ -1,5 +1,5 @@
 <div class="page-header">
-  <h2>Registrar venta</h2>
+<h2>Registrar venta</h2>
 </div>
 
 <form [formGroup]="formBusqueda" (ngSubmit)="buscarYAgregar()">
@@ -93,7 +93,8 @@
               type="number" 
               [value]="item.cantidad"
               (change)="actualizarCantidad(i, $event)"
-              min="1"
+              min="0.001"
+              step="any"
               [max]="item.producto.stock"
               class="cantidad-input"
             />

@@ -100,10 +100,10 @@ export class RegistroComponent implements OnInit {
 
   actualizarCantidad(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
-    const nuevaCantidad = parseInt(input.value);
+    const nuevaCantidad = parseFloat(input.value);
     const item = this.seleccionados[index];
     
-    if (isNaN(nuevaCantidad) || nuevaCantidad < 1) {
+    if (isNaN(nuevaCantidad) || nuevaCantidad <= 0) {
       input.value = item.cantidad.toString();
       return;
     }
