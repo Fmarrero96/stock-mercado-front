@@ -13,4 +13,9 @@
     max-width: 100%;
     padding: 2rem 1rem;
   }
+
+  @media (max-width: 768px) {
+    margin-top: 56px; // Ajuste para la altura del navbar en móviles si es diferente
+    padding: 1rem;
+  }
 } 

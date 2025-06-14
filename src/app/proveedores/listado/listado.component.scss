@@ -135,43 +135,43 @@ $text-primary: #2c3e50;
 
 .table-responsive {
   overflow-x: auto;
-  min-width: 100%;
-}
+  
+  table {
+    width: 100%;
+    min-width: 768px; // Ensure table doesn't shrink too much for horizontal scroll
+    border-collapse: collapse;
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid $gray-medium;
-  }
-
-  th {
-    background-color: $gray-light;
-    color: $text-primary;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  tr {
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: $gray-light;
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid $gray-medium;
     }
-  }
 
-  td {
-    color: $gray-dark;
-    font-size: 0.95rem;
+    th {
+      background-color: $gray-light;
+      color: $text-primary;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-    &.actions {
-      display: flex;
-      gap: 0.5rem;
+    tr {
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: $gray-light;
+      }
+    }
+
+    td {
+      color: $gray-dark;
+      font-size: 0.95rem;
+
+      &.actions {
+        display: flex;
+        gap: 0.5rem;
+      }
     }
   }
 }
@@ -376,6 +376,74 @@ table {
     font-size: 0.85rem;
     margin-top: 0.5rem;
     display: block;
+  }
+}
+
+// Ajustes para móviles
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    h2 {
+      font-size: 1.5rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .search-bar {
+    .search-input {
+      max-width: 100%;
+    }
+  }
+
+  .table-responsive {
+    border-radius: 0; // Remove border-radius on small screens for full width
+  }
+
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+
+  tr {
+    border: 1px solid #f0f2f5;
+    margin-bottom: 0.8rem;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  td {
+    border: none;
+    position: relative;
+    padding-left: 50%; // Adjust based on label width
+    text-align: right;
+
+    &::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 6px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap;
+      text-align: left;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+  }
+
+  td.actions {
+    justify-content: flex-end; // Align actions to the right
   }
 }
   
