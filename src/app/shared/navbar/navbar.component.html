@@ -1,6 +1,6 @@
 <nav class="navbar">
   <div class="navbar-brand">
-    <img src="src/assets/icono.png" class="logo">
+    <img src="assets/icono.png" class="logo">
     <span class="brand-name">VendeYA  </span>
   </div>
 
@@ -19,9 +19,15 @@
   </div>
 
   <div class="navbar-user">
-    <button class="user-menu">
+    <button class="user-menu" (click)="toggleMenuUsuario()">
       <span class="user-icon">👤</span>
-      <span class="user-name">Usuario</span>
+      <span class="user-name">{{ nombreUsuario }}</span>
     </button>
+
+    <div class="user-dropdown" *ngIf="mostrarMenuUsuario">
+      <button class="dropdown-item" (click)="cerrarSesion()">
+        Cerrar sesión
+      </button>
+    </div>
   </div>
 </nav> 

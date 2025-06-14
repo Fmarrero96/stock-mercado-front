@@ -37,15 +37,15 @@
       </thead>
       <tbody>
         <tr *ngFor="let p of filtrados">
-          <td>{{ p.nombre }}</td>
-          <td>{{ p.email }}</td>
-          <td>{{ p.telefono }}</td>
-          <td>{{ p.direccion }}</td>
-          <td class="actions">
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.email }}</td>
+            <td>{{ p.telefono }}</td>
+            <td>{{ p.direccion }}</td>
+            <td class="actions">
             <button class="btn-icon primary" (click)="abrirModal(p)" title="Editar">
-              <span class="icon">✏️</span>
-            </button>
-          </td>
+                <span class="icon">✏️</span>
+              </button>
+            </td>
         </tr>
       </tbody>
     </table>

@@ -1,5 +1,5 @@
 <div class="page-header">
-  <h2>Resumen de ventas</h2>
+<h2>Resumen de ventas</h2>
 </div>
 
 <div *ngIf="cargando" class="cargando">
@@ -29,37 +29,37 @@
 
     <div class="filtros" *ngIf="ventas.length > 0">
       <div class="filtro-grupo-fechas">
-        <div class="form-group">
-          <label for="fechaDesde">Desde:</label>
-          <input 
-            id="fechaDesde"
-            type="date" 
-            [(ngModel)]="fechaDesde" 
-            (change)="aplicarFiltros()" 
-          />
-        </div>
+      <div class="form-group">
+        <label for="fechaDesde">Desde:</label>
+        <input 
+          id="fechaDesde"
+          type="date" 
+          [(ngModel)]="fechaDesde" 
+          (change)="aplicarFiltros()" 
+        />
+      </div>
 
-        <div class="form-group">
-          <label for="fechaHasta">Hasta:</label>
-          <input 
-            id="fechaHasta"
-            type="date" 
-            [(ngModel)]="fechaHasta" 
-            (change)="aplicarFiltros()" 
-          />
+      <div class="form-group">
+        <label for="fechaHasta">Hasta:</label>
+        <input 
+          id="fechaHasta"
+          type="date" 
+          [(ngModel)]="fechaHasta" 
+          (change)="aplicarFiltros()" 
+        />
         </div>
       </div>
 
       <div class="filtro-grupo-busqueda">
-        <div class="form-group">
-          <label for="busqueda">Buscar producto:</label>
-          <input 
-            id="busqueda"
-            type="text" 
-            [(ngModel)]="busquedaProducto" 
-            (input)="aplicarFiltros()" 
-            placeholder="Ej: Yerba" 
-          />
+      <div class="form-group">
+        <label for="busqueda">Buscar producto:</label>
+        <input 
+          id="busqueda"
+          type="text" 
+          [(ngModel)]="busquedaProducto" 
+          (input)="aplicarFiltros()" 
+          placeholder="Ej: Yerba" 
+        />
         </div>
       </div>
     </div>
