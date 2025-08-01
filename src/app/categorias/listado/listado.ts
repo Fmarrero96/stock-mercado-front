@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CategoriaService } from '../categoria';
 import { Categoria, CategoriaCrearDTO } from '../categoria.model';
@@ -9,7 +9,9 @@ import { Categoria, CategoriaCrearDTO } from '../categoria.model';
   templateUrl: './listado.html',
   styleUrl: './listado.scss'
 })
-export class Listado implements OnInit {
+export class Listado implements OnInit, AfterViewInit {
+  @ViewChild('searchInput') searchInput!: ElementRef;
+  
   categorias: Categoria[] = [];
   categoriasFiltradas: Categoria[] = [];
   terminoBusqueda: string = '';
@@ -30,6 +32,15 @@ export class Listado implements OnInit {
   ngOnInit(): void {
     this.inicializarFormulario();
     this.cargarCategorias();
+  }
+
+  ngAfterViewInit(): void {
+    // Enfocar automáticamente el input de búsqueda cuando se carga el componente
+    setTimeout(() => {
+      if (this.searchInput) {
+        this.searchInput.nativeElement.focus();
+      }
+    }, 200);
   }
 
   inicializarFormulario(): void {

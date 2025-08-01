@@ -16,10 +16,12 @@
   <div class="search-input">
     <i class="fas fa-search search-icon"></i>
     <input 
+      #searchInput
       type="text" 
       [(ngModel)]="terminoBusqueda" 
       (ngModelChange)="filtrarProductos()"
       placeholder="🔍 Buscar productos..."
+      id="searchInput"
     >
   </div>
 </div>

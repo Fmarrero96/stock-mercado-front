@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductoService } from '../producto.service';
 import { Producto, ProductoCrearDTO } from '../producto.model';
@@ -13,7 +13,8 @@ import { tap } from 'rxjs/operators';
   templateUrl: './listado.component.html',
   styleUrls: ['./listado.component.scss']
 })
-export class ProductoListadoComponent implements OnInit {
+export class ProductoListadoComponent implements OnInit, AfterViewInit {
+  @ViewChild('searchInput') searchInput!: ElementRef;
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
   categorias: string[] = ['Electrónica', 'Ropa', 'Alimentos', 'Hogar', 'Otros'];
@@ -72,6 +73,15 @@ export class ProductoListadoComponent implements OnInit {
   ngOnInit(): void {
     this.cargarProductos();
     this.cargarCategorias();
+  }
+
+  ngAfterViewInit(): void {
+    // Enfocar automáticamente el input de búsqueda cuando se carga el componente
+    setTimeout(() => {
+      if (this.searchInput) {
+        this.searchInput.nativeElement.focus();
+      }
+    }, 200);
   }
 
   setupGananciaCalculations(): void {

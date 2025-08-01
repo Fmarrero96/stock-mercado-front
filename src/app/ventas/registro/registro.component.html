@@ -30,7 +30,7 @@
       <button class="btn-cerrar" (click)="cerrarModalBusqueda()">&times;</button>
     </div>
     <div class="modal-body modal-body-centrado">
-      <input type="text" [(ngModel)]="filtroNombre" (input)="filtrarProductosPorNombre()" placeholder="Ingrese nombre de producto..." autofocus class="input-busqueda-centrado" />
+      <input #modalSearchInput id="modalSearchInput" type="text" [(ngModel)]="filtroNombre" (input)="filtrarProductosPorNombre()" placeholder="Ingrese nombre de producto..." class="input-busqueda-centrado" />
       <table class="tabla-modal-productos">
         <thead>
           <tr>

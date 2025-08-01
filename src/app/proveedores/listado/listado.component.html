@@ -10,10 +10,12 @@
   <div class="search-input">
     <span class="search-icon">🔍</span>
     <input 
+      #searchInput
       type="text" 
       [(ngModel)]="termino" 
       (input)="aplicarFiltro()" 
       placeholder="Buscar por nombre o email..."
+      id="searchInput"
     />
   </div>
 </div>

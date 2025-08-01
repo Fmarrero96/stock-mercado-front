@@ -24,6 +24,7 @@ export class RegistroComponent implements OnInit, AfterViewInit {
   mostrarToast = false;
   productoEncontrado: Producto | null = null;
   @ViewChild('codigoBarrasInput') codigoBarrasInput!: ElementRef;
+  @ViewChild('modalSearchInput') modalSearchInput!: ElementRef;
   productosFiltrados: Producto[] = [];
   mostrarModalBusqueda = false;
   filtroNombre = '';
@@ -183,6 +184,22 @@ export class RegistroComponent implements OnInit, AfterViewInit {
     this.filtroNombre = '';
     this.productosFiltrados = [];
     this.mostrarModalBusqueda = true;
+    // Enfocar el input del modal después de que se renderice
+    setTimeout(() => {
+      const modalInput = document.getElementById('modalSearchInput') as HTMLInputElement;
+      if (modalInput) {
+        console.log('Enfocando modal input con getElementById');
+        modalInput.focus();
+      } else {
+        console.log('Modal input no encontrado con getElementById');
+        // Intento con querySelector como respaldo
+        const modalInputClass = document.querySelector('.input-busqueda-centrado') as HTMLInputElement;
+        if (modalInputClass) {
+          console.log('Enfocando modal input con querySelector como respaldo');
+          modalInputClass.focus();
+        }
+      }
+    }, 500);
     this.productoService.obtenerProductos().subscribe(productos => {
       this.todosLosProductos = productos;
       this.productosFiltrados = productos.slice(0, 10);
