@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProductoService } from '../../productos/producto.service';
 import { Producto ,  ProductoCrearDTO} from '../../productos/producto.model';
@@ -16,7 +16,7 @@ interface ItemVenta {
   templateUrl: './registro.component.html',
   styleUrls: ['./registro.component.scss']
 })
-export class RegistroComponent implements OnInit {
+export class RegistroComponent implements OnInit, AfterViewInit {
   seleccionados: ItemVenta[] = [];
   total = 0;
   formBusqueda!: FormGroup;
@@ -48,6 +48,15 @@ export class RegistroComponent implements OnInit {
         this.productoEncontrado = null;
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Enfocar automáticamente el input de código de barras cuando se carga el componente
+    setTimeout(() => {
+      if (this.codigoBarrasInput) {
+        this.codigoBarrasInput.nativeElement.focus();
+      }
+    }, 100);
   }
 
   buscarProducto(codigo: string): void {
@@ -150,6 +159,13 @@ export class RegistroComponent implements OnInit {
         this.toast('Venta registrada correctamente ✅');
         this.seleccionados = [];
         this.total = 0;
+        this.productoEncontrado = null;
+        // Reenfocar el input para la siguiente venta
+        setTimeout(() => {
+          if (this.codigoBarrasInput) {
+            this.codigoBarrasInput.nativeElement.focus();
+          }
+        }, 100);
       },
       error: () => {
         this.toast('Error al registrar venta ❌');
@@ -175,6 +191,12 @@ export class RegistroComponent implements OnInit {
 
   cerrarModalBusqueda(): void {
     this.mostrarModalBusqueda = false;
+    // Reenfocar el input de código de barras después de cerrar el modal
+    setTimeout(() => {
+      if (this.codigoBarrasInput) {
+        this.codigoBarrasInput.nativeElement.focus();
+      }
+    }, 100);
   }
 
   filtrarProductosPorNombre(): void {
@@ -192,5 +214,6 @@ export class RegistroComponent implements OnInit {
     this.productoEncontrado = producto;
     this.agregarProductoEncontrado();
     this.cerrarModalBusqueda();
+    // El focus se maneja en cerrarModalBusqueda()
   }
 }
