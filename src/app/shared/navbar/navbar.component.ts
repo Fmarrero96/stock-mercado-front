@@ -9,13 +9,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./navbar.component.scss']
 })
 export class NavbarComponent implements OnInit {
-  // Definimos todos los items del menú, con una propiedad opcional 'adminOnly'
+  // Definimos todos los items del menú con sus permisos requeridos
   allMenuItems = [
-    { path: '/ventas', icon: '🏠', label: 'Inicio' },
-    { path: '/ventas/resumen', icon: '💰', label: 'Ventas' },
-    { path: '/productos', icon: '📦', label: 'Productos' },
-    { path: '/proveedores', icon: '🤝', label: 'Proveedores' },
-    { path: '/usuarios', icon: '👥', label: 'Usuarios'} // Marcar como solo para admin
+    { path: '/ventas', icon: '🏠', label: 'Inicio', permission: 'inicio' },
+    { path: '/ventas/resumen', icon: '💰', label: 'Ventas', permission: 'ventas' },
+    { path: '/productos', icon: '📦', label: 'Productos', permission: 'productos' },
+    { path: '/categorias', icon: '🏷️', label: 'Categorías', permission: 'productos' },
+    { path: '/proveedores', icon: '🤝', label: 'Proveedores', permission: 'proveedores' },
+    { path: '/usuarios', icon: '👥', label: 'Usuarios', permission: 'usuarios' }
   ];
 
   menuItems: any[] = []; // Los items que se mostrarán en el menú
@@ -40,6 +41,7 @@ export class NavbarComponent implements OnInit {
   }
 
   filterMenuItems(): void {
+    // Por ahora mostrar todos los items, después implementar filtros por rol
     this.menuItems = this.allMenuItems;
   }
 

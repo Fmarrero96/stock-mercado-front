@@ -14,7 +14,8 @@ const routes: Routes = [
       { path: 'productos', loadChildren: () => import('./productos/productos-routing-module').then(m => m.ProductosRoutingModule) },
       { path: 'ventas', loadChildren: () => import('./ventas/ventas-module').then(m => m.VentasModule) },
       { path: 'usuarios', loadChildren: () => import('./usuarios/usuarios-module').then(m => m.UsuariosModule) },
-      { path: 'proveedores', loadChildren: () => import('./proveedores/proveedores-module').then(m => m.ProveedoresModule) }
+      { path: 'proveedores', loadChildren: () => import('./proveedores/proveedores-module').then(m => m.ProveedoresModule) },
+      { path: 'categorias', loadChildren: () => import('./categorias/categorias-module').then(m => m.CategoriasModule) }
     ]
   }
 ];
