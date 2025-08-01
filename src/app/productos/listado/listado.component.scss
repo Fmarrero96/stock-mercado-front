@@ -266,6 +266,7 @@ $text-primary: #2c3e50;
   bottom: 0;
   background-color: rgba(0,0,0,0.5);
   backdrop-filter: blur(4px);
+  z-index: -1;
 }
 
 .modal-content {
@@ -489,6 +490,21 @@ input[type="number"] {
 
   td.categoria-cell {
     max-width: unset;
+  }
+}
+
+// Estilos para el nuevo grupo de botones en el encabezado de la página
+.header-actions {
+  display: flex;
+  gap: 1rem; // Espacio entre los botones
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+
+    .btn-primary {
+      width: 100%;
+    }
   }
 }
   

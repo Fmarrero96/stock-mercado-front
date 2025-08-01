@@ -1,9 +1,15 @@
 <div class="page-header">
   <h2>Listado de Productos</h2>
-  <button class="btn-primary" (click)="abrirModalCrear()">
-    <span class="icon">➕</span>
-    Nuevo Producto
-  </button>
+  <div class="header-actions">
+    <button class="btn-primary" (click)="abrirModalAgregarStock()">
+      <span class="icon">📦</span>
+      Agregar Stock
+    </button>
+    <button class="btn-primary" (click)="abrirModalCrear()">
+      <span class="icon">➕</span>
+      Nuevo Producto
+    </button>
+  </div>
 </div>
 
 <div class="search-bar">
@@ -230,5 +236,70 @@
 <div class="alert error" *ngIf="error">
   <i class="fas fa-exclamation-circle alert-icon"></i>
   {{error}}
+</div>
+
+<!-- Modal de Agregar Stock -->
+<div class="modal" *ngIf="mostrarModalStock">
+  <div class="modal-backdrop" (click)="cerrarModalStock()"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Agregar Stock</h3>
+      <button class="btn-icon" (click)="cerrarModalStock()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="stockForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="codigoBarraStock">Código de barras</label>
+            <input 
+              id="codigoBarraStock" 
+              type="text" 
+              formControlName="codigoBarra"
+              (blur)="buscarProductoPorCodigo()"
+              placeholder="Ingrese código de barras"
+              [class.error]="stockForm.get('codigoBarra')?.invalid && stockForm.get('codigoBarra')?.touched"
+            >
+            <span class="error-message" *ngIf="stockForm.get('codigoBarra')?.invalid && stockForm.get('codigoBarra')?.touched">
+              El código de barras es requerido
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row" *ngIf="productoEncontrado">
+          <div class="form-group">
+            <label>Producto: {{ productoEncontrado.nombre }}</label>
+            <label>Stock actual: {{ productoEncontrado.stock }}</label>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cantidadAgregar">Cantidad a agregar</label>
+            <input 
+              id="cantidadAgregar" 
+              type="number" 
+              formControlName="cantidadAgregar"
+              [disabled]="!productoEncontrado"
+              [class.error]="stockForm.get('cantidadAgregar')?.invalid && stockForm.get('cantidadAgregar')?.touched"
+            >
+            <span class="error-message" *ngIf="stockForm.get('cantidadAgregar')?.invalid && stockForm.get('cantidadAgregar')?.touched">
+              La cantidad a agregar es requerida y debe ser mayor a 0
+            </span>
+          </div>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="cerrarModalStock()">Cancelar</button>
+      <button 
+        class="btn-primary" 
+        (click)="guardarStock()"
+        [disabled]="stockForm.invalid || !productoEncontrado || stockForm.get('cantidadAgregar')?.value <= 0"
+      >Guardar Stock</button>
+    </div>
+  </div>
 </div>
   

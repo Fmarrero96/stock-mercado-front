@@ -5,6 +5,7 @@ import { Producto, ProductoCrearDTO } from '../producto.model';
 import { CategoriaService } from '../../categorias/categoria.service';
 import { Categoria } from '../../categorias/categoria.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-producto-listado',
@@ -25,6 +26,10 @@ export class ProductoListadoComponent implements OnInit {
   guardando: boolean = false;
   error: string = '';
 
+  mostrarModalStock: boolean = false;
+  stockForm: FormGroup;
+  productoEncontrado: Producto | null = null;
+
   productoForm: FormGroup;
 
   constructor(
@@ -44,7 +49,24 @@ export class ProductoListadoComponent implements OnInit {
       categoriaId: [null, [Validators.required]]
     });
 
+    this.stockForm = this.fb.group({
+      codigoBarra: ['', [Validators.required]],
+      cantidadAgregar: [null, [Validators.required, Validators.min(1)]]
+    });
+
     this.setupGananciaCalculations();
+
+    this.stockForm.get('codigoBarra')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      tap(codigoBarra => {
+        if (codigoBarra) {
+          this.buscarProductoPorCodigo();
+        } else {
+          this.productoEncontrado = null;
+        }
+      })
+    ).subscribe();
   }
 
   ngOnInit(): void {
@@ -178,7 +200,18 @@ export class ProductoListadoComponent implements OnInit {
     delete productoData.gananciaPorcentaje;
 
     if (this.modoEdicion && this.productoEditando) {
-      this.productoService.actualizarProducto(this.productoEditando.id, productoData).subscribe({
+      const ProductoEditado: ProductoCrearDTO = {
+        nombre: productoData.nombre,
+        descripcion: productoData.descripcion,
+        codigoBarra: productoData.codigoBarra,
+        precioCompra: productoData.precioCompra,
+        precioVenta: productoData.precioVenta,
+        stock: productoData.stock,
+        stockMinimo: productoData.stockMinimo,
+        categoriaId: productoData.categoriaId
+      };
+
+      this.productoService.actualizarProducto(this.productoEditando.id, ProductoEditado).subscribe({
         next: () => {
           this.cargarProductos();
           this.cerrarModal();
@@ -242,5 +275,73 @@ export class ProductoListadoComponent implements OnInit {
   getNombreCategoria(id: number): string {
     const categoria = this.categoriasDisponibles.find(c => c.id === id);
     return categoria ? categoria.nombre : 'Desconocida';
+  }
+
+  abrirModalAgregarStock(): void {
+    this.mostrarModalStock = true;
+    this.stockForm.reset();
+    this.productoEncontrado = null;
+    this.error = '';
+  }
+
+  cerrarModalStock(): void {
+    this.mostrarModalStock = false;
+    this.stockForm.reset();
+    this.productoEncontrado = null;
+    this.error = '';
+  }
+
+  buscarProductoPorCodigo(): void {
+    const codigoBarra = this.stockForm.get('codigoBarra')?.value;
+    this.productoEncontrado = null;
+    if (codigoBarra) {
+      this.productoService.buscarPorCodigo(codigoBarra).subscribe({
+        next: (producto: Producto) => {
+          this.productoEncontrado = producto;
+          if (producto) {
+            this.stockForm.get('cantidadAgregar')?.enable();
+          } else {
+            this.stockForm.get('cantidadAgregar')?.disable();
+          }
+        },
+        error: (err: any) => {
+          console.error('Error al buscar producto:', err);
+          this.productoEncontrado = null;
+          this.stockForm.get('cantidadAgregar')?.disable();
+          this.error = 'Producto no encontrado o error en la búsqueda.';
+        }
+      });
+    }
+  }
+
+  guardarStock(): void {
+    if (this.stockForm.invalid || !this.productoEncontrado) {
+      console.log('Formulario inválido o producto no encontrado.');
+      return;
+    }
+
+    const cantidadAgregar = this.stockForm.get('cantidadAgregar')?.value;
+    const nuevoStock = this.productoEncontrado.stock + cantidadAgregar;
+
+    const productoParaActualizar: Partial<Producto> = {
+      codigoBarra: this.productoEncontrado.codigoBarra,
+      nombre: this.productoEncontrado.nombre,
+      descripcion: this.productoEncontrado.descripcion,
+      precioCompra: this.productoEncontrado.precioCompra,
+      precioVenta: this.productoEncontrado.precioVenta,
+      stock: nuevoStock,
+      stockMinimo: this.productoEncontrado.stockMinimo,
+      categoriaId: this.productoEncontrado.categoriaId
+    };
+
+    this.productoService.actualizarProducto(this.productoEncontrado.id, productoParaActualizar).subscribe({
+      next: () => {
+        this.cargarProductos();
+        this.cerrarModalStock();
+      },
+      error: (error: any) => {
+        this.error = 'Error al actualizar el stock: ' + error.message;
+      }
+    });
   }
 }
