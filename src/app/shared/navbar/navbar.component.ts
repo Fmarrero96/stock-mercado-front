@@ -11,12 +11,12 @@ import { Router } from '@angular/router';
 export class NavbarComponent implements OnInit {
   // Definimos todos los items del menú con sus permisos requeridos
   allMenuItems = [
-    { path: '/ventas', icon: '🏠', label: 'Inicio', permission: 'inicio' },
-    { path: '/ventas/resumen', icon: '💰', label: 'Ventas', permission: 'ventas' },
-    { path: '/productos', icon: '📦', label: 'Productos', permission: 'productos' },
-    { path: '/categorias', icon: '🏷️', label: 'Categorías', permission: 'productos' },
-    { path: '/proveedores', icon: '🤝', label: 'Proveedores', permission: 'proveedores' },
-    { path: '/usuarios', icon: '👥', label: 'Usuarios', permission: 'usuarios' }
+    { path: '/ventas', label: 'Inicio', permission: 'inicio', shortcut: 'F1' },
+    { path: '/ventas/resumen', label: 'Ventas', permission: 'ventas', shortcut: 'F2' },
+    { path: '/productos', label: 'Productos', permission: 'productos', shortcut: 'F3' },
+    { path: '/categorias', label: 'Categorías', permission: 'productos', shortcut: 'F6' },
+    { path: '/proveedores', label: 'Proveedores', permission: 'proveedores', shortcut: 'F4' },
+    { path: '/usuarios', label: 'Usuarios', permission: 'usuarios', shortcut: 'F5' }
   ];
 
   menuItems: any[] = []; // Los items que se mostrarán en el menú

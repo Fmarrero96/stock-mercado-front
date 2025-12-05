@@ -29,9 +29,13 @@ export class AppComponent {
         break;
       case 'F4':
         event.preventDefault();
-        this.router.navigate(['/proveedores']);
+        this.router.navigate(['/categorias']);
         break;
       case 'F5':
+        event.preventDefault();
+        this.router.navigate(['/proveedores']);
+        break;
+      case 'F6':
         event.preventDefault();
         this.router.navigate(['/usuarios']);
         break;

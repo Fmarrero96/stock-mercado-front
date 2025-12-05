@@ -1,151 +1,142 @@
+$primary: #3498db;
+$success: #2ecc71;
+$danger: #e74c3c;
+$gray-light: #f8f9fa;
+$gray-medium: #e9ecef;
+$gray-dark: #6c757d;
+$text-primary: #343a40;
+
 .navbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 2rem;
+  padding: 0 1.5rem;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-bottom: 1px solid $gray-medium;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  height: 64px;
+  height: 56px;
 
   @media (max-width: 768px) {
-    padding: 0.75rem 1rem;
+    padding: 0 1rem;
   }
 }
 
-.navbar-brand {
+.brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
+  gap: 0.5rem;
   
   .logo {
-    height: 1.25rem;
-    width: 1.25rem;
+    height: 1rem;
+    width: 1rem;
     object-fit: contain;
   }
   
-  .brand-name {
-    font-size: 1.25rem;
+  .name {
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #2c3e50;
+    color: $text-primary;
 
     @media (max-width: 768px) {
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
   }
 }
 
-.navbar-menu {
+.menu {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   
   @media (max-width: 768px) {
-    display: none; // Hidden by default on small screens
-    flex-direction: column;
-    position: absolute;
-    top: 64px; // Below the navbar
-    left: 0;
-    width: 100%;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 1rem;
-    gap: 1rem;
-    align-items: flex-start;
+    display: none;
   }
   
-  .menu-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
+  .menu-link {
+    padding: 0.5rem 0.75rem;
     text-decoration: none;
-    color: #64748b;
-    border-radius: 6px;
+    color: $gray-dark;
+    border-radius: 4px;
     transition: all 0.2s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
     
     &:hover {
-      background: #f1f5f9;
-      color: #2c3e50;
+      background: $gray-light;
+      color: $text-primary;
     }
     
     &.active {
-      background: #e2e8f0;
-      color: #2c3e50;
-      font-weight: 500;
-    }
-    
-    .item-icon {
-      font-size: 1.25rem;
-    }
-    
-    .item-label {
-      font-size: 0.95rem;
+      background: $primary;
+      color: white;
     }
   }
 }
 
-.navbar-user {
+.user {
   position: relative;
 
   @media (max-width: 768px) {
-    display: none; // Hidden by default on small screens
+    display: none;
   }
-  .user-menu {
+
+  .user-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.75rem;
     background: none;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
+    border: 1px solid $gray-medium;
+    border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s ease;
+    font-size: 0.9rem;
+    color: $text-primary;
     
     &:hover {
-      background: #f1f5f9;
+      background: $gray-light;
     }
     
-    .user-icon {
-      font-size: 1.25rem;
-    }
-    
-    .user-name {
-      font-size: 0.95rem;
-      color: #64748b;
+    .arrow {
+      font-size: 0.7rem;
+      transition: transform 0.2s ease;
     }
   }
 
-  .user-dropdown {
+  &.open .user-btn .arrow {
+    transform: rotate(180deg);
+  }
+
+  .dropdown {
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 5px);
     right: 0;
     background: white;
-    border-radius: 8px;
+    border: 1px solid $gray-medium;
+    border-radius: 4px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    min-width: 180px;
+    min-width: 140px;
     overflow: hidden;
     z-index: 1000;
 
-    .dropdown-item {
+    .dropdown-btn {
       display: block;
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.5rem 0.75rem;
       border: none;
       background: none;
       text-align: left;
       cursor: pointer;
-      color: #2c3e50;
-      font-size: 0.95rem;
+      color: $text-primary;
+      font-size: 0.9rem;
       transition: background-color 0.2s ease;
 
       &:hover {
-        background-color: #f1f5f9;
+        background: $gray-light;
       }
     }
   }
@@ -154,9 +145,4 @@
 // Ajuste para el contenido principal
 :host {
   display: block;
-  
-  & + * {
-    // margin-top: 64px; // Altura del navbar (eliminado para evitar doble padding/margin)
-    // padding: 2rem; // El padding se maneja en main-content en app.component.scss (eliminado para evitar doble padding/margin)
-  }
-} 
+}
