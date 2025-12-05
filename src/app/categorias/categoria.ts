@@ -13,6 +13,7 @@ export class CategoriaService {
 
   // Obtener todas las categorías
   obtenerCategorias(): Observable<Categoria[]> {
+    /*
     // Simulación de datos mientras no hay backend
     return of([
       {
@@ -50,10 +51,10 @@ export class CategoriaService {
         activo: true,
         fechaCreacion: new Date('2024-01-19')
       }
-    ]);
+    ]);*/
 
     // Cuando esté el backend, usar:
-    // return this.http.get<Categoria[]>(this.apiUrl);
+     return this.http.get<Categoria[]>(this.apiUrl);
   }
 
   // Obtener categoría por ID
