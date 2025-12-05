@@ -27,6 +27,7 @@ export class RegistroComponent implements OnInit, AfterViewInit {
   @ViewChild('modalSearchInput') modalSearchInput!: ElementRef;
   productosFiltrados: Producto[] = [];
   mostrarModalBusqueda = false;
+  mostrarModalConfirmacion = false;
   filtroNombre = '';
   todosLosProductos: Producto[] = [];
 
@@ -135,6 +136,23 @@ export class RegistroComponent implements OnInit, AfterViewInit {
   get puedeConfirmar(): boolean {
     return this.seleccionados.length > 0 && 
            !this.seleccionados.some(item => item.cantidad > item.producto.stock);
+  }
+
+  abrirModalConfirmacion(): void {
+    if (!this.puedeConfirmar) {
+      this.toast('Debe agregar al menos un producto válido.');
+      return;
+    }
+    this.mostrarModalConfirmacion = true;
+  }
+
+  cerrarModalConfirmacion(): void {
+    this.mostrarModalConfirmacion = false;
+  }
+
+  confirmarVentaFinal(): void {
+    this.mostrarModalConfirmacion = false;
+    this.confirmarVenta();
   }
 
   confirmarVenta(): void {

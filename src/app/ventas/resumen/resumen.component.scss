@@ -1,301 +1,285 @@
-// Variables
 $primary: #3498db;
 $success: #2ecc71;
 $danger: #e74c3c;
-$warning: #f1c40f;
-$gray-light: #f8fafc;
-$gray-medium: #e2e8f0;
-$gray-dark: #64748b;
-$text-primary: #2c3e50;
+$gray-light: #f8f9fa;
+$gray-medium: #e9ecef;
+$gray-dark: #6c757d;
+$text-primary: #343a40;
 
-// Estilos generales de página
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-
-  h2 {
-    font-size: 1.8rem;
-    color: $text-primary;
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1 !important;
-  }
-}
-
-// Contenedor principal
 :host {
   display: block;
-  padding: 1rem 2rem;
-  max-width: 1200px;
+  padding: 1rem;
+  max-width: 800px;
   margin: 0 auto;
 }
 
-// Estado de carga
-.cargando {
-  text-align: center;
-  padding: 3rem;
-  color: $gray-dark;
-  font-size: 1.1rem;
-  background: $gray-light;
-  border-radius: 12px;
-  margin: 2rem 0;
-}
-
-// Mensaje de error
-.error {
-  background-color: rgba($danger, 0.1);
-  color: $danger;
-  padding: 1rem;
-  border-radius: 8px;
+h2 {
+  font-size: 1.5rem;
+  color: $text-primary;
   margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: $gray-dark;
+  background: $gray-light;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.error {
+  background: rgba($danger, 0.1);
+  color: $danger;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
   border: 1px solid rgba($danger, 0.2);
-
-  i {
-    font-size: 1.2rem;
-  }
 }
 
-// Agrupador y filtros
-.controles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.agrupador, .filtros {
+.controls {
   background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 1rem;
+  border: 1px solid $gray-medium;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
 
-  label {
-    display: block;
-    color: $text-primary;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-  }
-
-  select, input {
-    width: 100%;
-    padding: 0.75rem 1rem;
+  select {
+    padding: 0.5rem;
     border: 1px solid $gray-medium;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-    box-sizing: border-box; /* Asegura que padding y border se incluyan en el width */
+    border-radius: 4px;
+    font-size: 0.9rem;
+    background: white;
 
     &:focus {
       outline: none;
       border-color: $primary;
-      box-shadow: 0 0 0 3px rgba($primary, 0.1);
     }
   }
-}
 
-.filtros {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem; /* Espacio entre los grupos de filtros (fechas y búsqueda) */
-  /* Las reglas de .form-group que estaban aquí han sido eliminadas para evitar conflictos */
-
-  .filtro-grupo-fechas {
+  .filters {
     display: flex;
-    gap: 1rem; /* Espacio entre 'Desde' y 'Hasta' */
-    flex: 1 1 auto; /* Permite que este grupo crezca, manteniendo su min-width */
-    min-width: 300px; /* Ancho mínimo para el grupo de fechas */
+    gap: 0.5rem;
+    flex: 1;
 
-    .form-group {
-      flex: 1 1 0; /* Distribuye el espacio equitativamente entre los inputs de fecha */
-    }
-  }
+    input {
+      padding: 0.5rem;
+      border: 1px solid $gray-medium;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      min-width: 120px;
 
-  .filtro-grupo-busqueda {
-    flex: 1 1 auto; /* Permite que este grupo crezca */
-    min-width: 250px; /* Ancho mínimo para el input de búsqueda */
-    
-    .form-group {
-      width: 100%; /* Asegura que el input ocupe todo el ancho de su form-group */
-    }
-  }
+      &:focus {
+        outline: none;
+        border-color: $primary;
+      }
 
-  /* Media queries para adaptar la disposición en pantallas más pequeñas */
-  @media (max-width: 900px) {
-    .filtro-grupo-fechas,
-    .filtro-grupo-busqueda {
-      flex: 1 1 100%; /* Cada grupo ocupa todo el ancho en pantallas pequeñas */
-      min-width: unset; /* Elimina el min-width para permitir que ocupe todo el ancho */
+      &[type="date"] {
+        min-width: 140px;
+      }
     }
   }
 }
 
-// Resumen de totales
-.resumen-totales {
+.totals-summary {
   background: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid $gray-medium;
+  border-radius: 4px;
+  margin-bottom: 1rem;
 
   h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
     color: $text-primary;
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    text-transform: capitalize;
   }
 
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .totals-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
 
-    li {
-      padding: 1rem;
+    .total-item {
       background: $gray-light;
-      border-radius: 8px;
+      padding: 0.75rem;
+      border-radius: 4px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      font-size: 0.9rem;
 
-      strong {
+      .period {
         color: $text-primary;
+        font-weight: 500;
+      }
+
+      .amount {
+        color: $primary;
+        font-weight: 600;
       }
     }
   }
 
-  .btn-exportar {
-    margin-top: 1.5rem;
-    background-color: $primary;
+  .btn-export {
+    background: $primary;
     color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
     cursor: pointer;
+    font-size: 0.9rem;
     font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
 
     &:hover {
-      background-color: darken($primary, 10%);
-      transform: translateY(-1px);
-    }
-
-    i {
-      font-size: 1.2rem;
+      background: darken($primary, 10%);
     }
   }
 }
 
-// Tabla de ventas
-.card {
+.sales-list {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  overflow: hidden;
-  margin-bottom: 2rem;
-}
+  border: 1px solid $gray-medium;
+  border-radius: 4px;
+  margin-bottom: 1rem;
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-
-  th, td {
-    padding: 1rem;
-    text-align: left;
+  .table-header {
+    display: grid;
+    grid-template-columns: 60px 1fr 100px 80px 40px;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: $gray-light;
     border-bottom: 1px solid $gray-medium;
-  }
-
-  th {
-    background-color: $gray-light;
-    color: $text-primary;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: $text-primary;
   }
 
-  tbody {
-    tr {
-      transition: background-color 0.2s;
+  .sale-item {
+    border-bottom: 1px solid $gray-light;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .sale-header {
+      padding: 0.75rem;
+      display: grid;
+      grid-template-columns: 60px 1fr 100px 80px 40px;
+      gap: 0.75rem;
+      align-items: center;
+      cursor: pointer;
+      font-size: 0.9rem;
 
       &:hover {
-        background-color: $gray-light;
+        background: $gray-light;
       }
 
-      button {
-        background: none;
-        border: none;
-        color: $primary;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 6px;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      .id {
+        font-weight: 500;
+        font-size: 0.85rem;
+      }
 
-        &:hover {
-          background-color: rgba($primary, 0.1);
+      .date {
+        color: $gray-dark;
+        font-size: 0.85rem;
+      }
+
+      .total {
+        font-weight: 600;
+        color: $primary;
+        text-align: right;
+        font-size: 0.9rem;
+      }
+
+      .items {
+        color: $gray-dark;
+        font-size: 0.85rem;
+        text-align: right;
+      }
+
+      .toggle {
+        font-size: 1.2rem;
+        color: $gray-dark;
+        font-weight: bold;
+        text-align: center;
+      }
+    }
+
+    .sale-details {
+      background: $gray-light;
+      padding: 0.5rem 0.75rem;
+
+      .detail-header {
+        display: grid;
+        grid-template-columns: 1fr 80px 90px 100px;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid $gray-medium;
+        font-weight: 500;
+        font-size: 0.8rem;
+        color: $text-primary;
+        margin-bottom: 0.25rem;
+      }
+
+      .detail-item {
+        display: grid;
+        grid-template-columns: 1fr 80px 90px 100px;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid $gray-medium;
+        font-size: 0.85rem;
+
+        &:last-child {
+          border-bottom: none;
         }
 
-        i {
-          font-size: 1.2rem;
+        .product {
+          font-weight: 500;
+        }
+
+        .quantity {
+          text-align: center;
+        }
+
+        .price {
+          text-align: right;
+          color: $gray-dark;
+        }
+
+        .subtotal {
+          text-align: right;
+          font-weight: 500;
+          color: $primary;
         }
       }
     }
   }
 }
 
-// Tabla de detalles
-.detalle {
-  background: $gray-light;
-  margin: 0.5rem;
-  border-radius: 8px;
-  overflow: hidden;
-
-  th {
-    background: rgba($primary, 0.1);
-    color: $primary;
-    font-size: 0.85rem;
-  }
-
-  td {
-    font-size: 0.9rem;
-  }
-}
-
-// Paginación
-.paginacion {
+.pagination {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
 
   button {
-    background-color: white;
+    background: white;
     border: 1px solid $gray-medium;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s;
+    font-size: 0.9rem;
 
     &:hover:not(:disabled) {
-      background-color: $gray-light;
+      background: $gray-light;
       border-color: $primary;
     }
 
@@ -303,33 +287,25 @@ table {
       opacity: 0.5;
       cursor: not-allowed;
     }
-
-    i {
-      font-size: 1rem;
-    }
   }
 
   span {
     color: $gray-dark;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 }
 
-// Estado vacío
-.sin-datos {
+.no-data {
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 2rem;
   color: $gray-dark;
-  font-size: 1.1rem;
   background: $gray-light;
-  border-radius: 12px;
-  margin: 2rem 0;
+  border-radius: 4px;
+  margin: 1rem 0;
 
-  i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    display: block;
-    color: $gray-dark;
+  p {
+    margin: 0;
+    font-size: 0.9rem;
   }
 }
   

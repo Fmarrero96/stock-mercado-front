@@ -1,129 +1,121 @@
-<div class="page-header">
 <h2>Registrar venta</h2>
-</div>
 
 <form [formGroup]="formBusqueda" (ngSubmit)="buscarYAgregar()">
-  <div class="form-group form-group-flex">
-    <div class="search-input">
-      <label for="codigoBarras">Código de barras</label>
-      <input 
-        id="codigoBarras" 
-        type="text" 
-        formControlName="codigoBarras"
-        placeholder="Escanee o ingrese el código de barras"
-        required
-        #codigoBarrasInput
-      />
-      <i class="fas fa-barcode"></i>
-    </div>
-    <button type="button" class="btn-buscar-nombre" (click)="abrirModalBusqueda()">
-      <i class="fas fa-search"></i> Buscar por nombre
+  <div class="search-section">
+    <input 
+      id="codigoBarras" 
+      type="text" 
+      formControlName="codigoBarras"
+      placeholder="Código de barras"
+      required
+      #codigoBarrasInput
+    />
+    <button type="button" class="btn-search" (click)="abrirModalBusqueda()">
+      Buscar
     </button>
   </div>
 </form>
 
-<!-- Modal de búsqueda por nombre -->
-<div class="modal-busqueda" *ngIf="mostrarModalBusqueda">
-  <div class="modal-contenido">
+<div class="modal" *ngIf="mostrarModalBusqueda">
+  <div class="modal-content">
     <div class="modal-header">
-      <h3>Buscar producto por nombre</h3>
-      <button class="btn-cerrar" (click)="cerrarModalBusqueda()">&times;</button>
+      <span>Buscar producto</span>
+      <button (click)="cerrarModalBusqueda()">&times;</button>
     </div>
-    <div class="modal-body modal-body-centrado">
-      <input #modalSearchInput id="modalSearchInput" type="text" [(ngModel)]="filtroNombre" (input)="filtrarProductosPorNombre()" placeholder="Ingrese nombre de producto..." class="input-busqueda-centrado" />
-      <table class="tabla-modal-productos">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Precio</th>
-            <th>Stock</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let prod of productosFiltrados" (click)="agregarProductoDesdeModal(prod)">
-            <td>
-              <div class="info-producto-modal">
-                <span class="nombre">{{ prod.nombre }}</span>
-              </div>
-            </td>
-            <td class="precio">{{ prod.precioVenta | currency:'$' }}</td>
-            <td class="stock" [class.stock-bajo]="prod.stock < prod.stockMinimo">{{ prod.stock }}</td>
-          </tr>
-          <tr *ngIf="productosFiltrados.length === 0">
-            <td colspan="3">No se encontraron productos.</td>
-          </tr>
-        </tbody>
-      </table>
+    <input type="text" [(ngModel)]="filtroNombre" (input)="filtrarProductosPorNombre()" placeholder="Nombre del producto" />
+    <div class="products-list">
+      <div class="list-header">
+        <span>Nombre</span>
+        <span>Precio</span>
+        <span>Stock</span>
+      </div>
+      <div *ngFor="let prod of productosFiltrados" class="product-item" (click)="agregarProductoDesdeModal(prod)">
+        <span class="name">{{ prod.nombre }}</span>
+        <span class="price">{{ prod.precioVenta | currency:'$' }}</span>
+        <span class="stock" [class.low]="prod.stock < prod.stockMinimo">{{ prod.stock }}</span>
+      </div>
+      <div *ngIf="productosFiltrados.length === 0" class="no-products">
+        No se encontraron productos
+      </div>
     </div>
   </div>
 </div>
 
-<div class="producto-preview" *ngIf="productoEncontrado">
-  <div class="producto-info">
-    <h3>{{ productoEncontrado.nombre }}</h3>
-    <p class="precio">{{ productoEncontrado.precioVenta | currency:'$' }}</p>
-    <p class="stock" [class.stock-bajo]="productoEncontrado.stock < productoEncontrado.stockMinimo">
-      Stock disponible: {{ productoEncontrado.stock }}
-    </p>
+<div class="product-preview" *ngIf="productoEncontrado">
+  <span class="name">{{ productoEncontrado.nombre }}</span>
+  <span class="price">{{ productoEncontrado.precioVenta | currency:'$' }}</span>
+  <span class="stock" [class.low]="productoEncontrado.stock < productoEncontrado.stockMinimo">
+    Stock: {{ productoEncontrado.stock }}
+  </span>
+</div>
+
+<div class="selected-products" *ngIf="seleccionados.length > 0">
+  <div class="table-header">
+    <span>Producto</span>
+    <span>Cantidad</span>
+    <span>Subtotal</span>
+    <span></span>
+  </div>
+  <div *ngFor="let item of seleccionados; let i = index" class="product-row">
+    <div class="product-info">
+      <span class="name">{{ item.producto.nombre }}</span>
+      <span class="price">{{ item.producto.precioVenta | currency:'$' }}</span>
+    </div>
+    <div class="quantity-section">
+      <span class="warning" *ngIf="item.cantidad > item.producto.stock">Stock insuficiente</span>
+      <input 
+        type="number" 
+        [value]="item.cantidad"
+        (change)="actualizarCantidad(i, $event)"
+        min="0.001"
+        step="any"
+        [max]="item.producto.stock"
+      />
+    </div>
+    <span class="subtotal">{{ item.subtotal | currency:'$' }}</span>
+    <button class="btn-remove" (click)="quitarItem(i)">×</button>
   </div>
 </div>
 
-<div class="card" *ngIf="seleccionados.length > 0">
-  <div class="table-responsive">
-    <table>
-      <thead>
-        <tr>
-          <th>Producto</th>
-          <th>Precio</th>
-          <th>Cantidad</th>
-          <th>Subtotal</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of seleccionados; let i = index">
-          <td>{{ item.producto.nombre }}</td>
-          <td>{{ item.producto.precioVenta | currency:'$' }}</td>
-          <td class="cantidad-cell">
-            <span class="stock-warning" *ngIf="item.cantidad > item.producto.stock">
-              <i class="fas fa-exclamation-triangle"></i>
-              Stock insuficiente
-            </span>
-            <input 
-              type="number" 
-              [value]="item.cantidad"
-              (change)="actualizarCantidad(i, $event)"
-              min="0.001"
-              step="any"
-              [max]="item.producto.stock"
-              class="cantidad-input"
-            />
-          </td>
-          <td>{{ item.subtotal | currency:'$' }}</td>
-          <td>
-            <button class="btn-eliminar" (click)="quitarItem(i)" title="Eliminar producto">
-              <span>❌</span>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<div class="resumen-venta" *ngIf="seleccionados.length > 0">
+<div class="sale-summary" *ngIf="seleccionados.length > 0">
   <div class="total-info">
-    <p class="total">Total: <span>{{ total | currency:'$' }}</span></p>
-    <p class="items">{{ seleccionados.length }} items</p>
+    <span class="total">{{ total | currency:'$' }}</span>
+    <span class="items">{{ seleccionados.length }} items</span>
   </div>
-  <button class="btn-confirmar" (click)="confirmarVenta()" [disabled]="!puedeConfirmar">
-    <i class="fas fa-shopping-cart"></i>
-    <span>Confirmar venta</span>
-    <i class="fas fa-chevron-right"></i>
+  <button class="btn-confirm" (click)="abrirModalConfirmacion()" [disabled]="!puedeConfirmar">
+    Confirmar venta
   </button>
 </div>
 
+<div class="modal" *ngIf="mostrarModalConfirmacion">
+  <div class="modal-content confirmation">
+    <div class="modal-header">
+      <span>Confirmar Venta</span>
+    </div>
+    <div class="confirmation-content">
+      <p>¿Estás seguro de que quieres realizar esta venta?</p>
+      <div class="sale-summary-confirm">
+        <div class="summary-item">
+          <span class="label">Total:</span>
+          <span class="value">{{ total | currency:'$' }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Productos:</span>
+          <span class="value">{{ seleccionados.length }} items</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cerrarModalConfirmacion()">
+        Cancelar
+      </button>
+      <button class="btn-confirm-final" (click)="confirmarVentaFinal()">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" *ngIf="mostrarToast" [class.error]="toastMensaje.includes('Error')">
-  <i [class]="toastMensaje.includes('Error') ? 'fas fa-exclamation-circle' : 'fas fa-check-circle'"></i>
   {{ toastMensaje }}
 </div>
