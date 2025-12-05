@@ -429,42 +429,44 @@ $text-primary: #343a40;
 // Modales de confirmación
 .modal-content.confirmation {
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
+  padding: 1.5rem;
 
   .modal-header {
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid $gray-medium;
 
     span {
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       font-weight: 600;
       color: $text-primary;
     }
   }
 
   .confirmation-content {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
 
     p {
-      margin: 0 0 1rem 0;
+      margin: 0 0 1.5rem 0;
       color: $text-primary;
-      font-size: 0.95rem;
-      line-height: 1.4;
+      font-size: 1rem;
+      line-height: 1.5;
     }
 
     .product-info {
       background: $gray-light;
-      padding: 0.75rem;
-      border-radius: 4px;
+      padding: 1rem;
+      border-radius: 6px;
       border: 1px solid $gray-medium;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
 
       .info-item {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
 
         &:last-child {
           margin-bottom: 0;
@@ -472,10 +474,11 @@ $text-primary: #343a40;
 
         .label {
           color: $gray-dark;
+          font-weight: 500;
         }
 
         .value {
-          font-weight: 500;
+          font-weight: 600;
           color: $text-primary;
         }
       }
@@ -483,29 +486,33 @@ $text-primary: #343a40;
 
     .warning {
       color: $danger;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-style: italic;
       text-align: center;
-      padding: 0.5rem;
+      padding: 0.75rem;
       background: rgba($danger, 0.1);
-      border-radius: 4px;
+      border-radius: 6px;
       border: 1px solid rgba($danger, 0.2);
+      margin-top: 1rem;
     }
   }
 
   .modal-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 1rem;
     justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid $gray-light;
 
     button {
-      padding: 0.6rem 1.25rem;
-      border-radius: 4px;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
       border: none;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       font-weight: 500;
       cursor: pointer;
-      min-width: 80px;
+      min-width: 90px;
+      transition: all 0.2s ease;
 
       &.btn-cancel {
         background: white;
@@ -524,6 +531,7 @@ $text-primary: #343a40;
 
         &:hover {
           background: darken($primary, 10%);
+          transform: translateY(-1px);
         }
 
         &.danger {
@@ -531,6 +539,7 @@ $text-primary: #343a40;
 
           &:hover {
             background: darken($danger, 10%);
+            transform: translateY(-1px);
           }
         }
       }
