@@ -198,6 +198,23 @@ form {
       }
     }
   }
+
+  .empty-cart {
+    text-align: center;
+    padding: 2rem;
+    color: $gray-dark;
+
+    .empty-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+  }
 }
 
 .sale-summary {

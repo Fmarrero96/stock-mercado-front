@@ -49,7 +49,7 @@
   </span>
 </div>
 
-<div class="selected-products" *ngIf="seleccionados.length > 0">
+<div class="selected-products">
   <div class="table-header">
     <span>Producto</span>
     <span>Cantidad</span>
@@ -75,9 +75,13 @@
     <span class="subtotal">{{ item.subtotal | currency:'$' }}</span>
     <button class="btn-remove" (click)="quitarItem(i)">×</button>
   </div>
+  <div class="empty-cart" *ngIf="seleccionados.length === 0">
+    <span class="empty-icon">🛒</span>
+    <p>No hay productos agregados a la venta</p>
+  </div>
 </div>
 
-<div class="sale-summary" *ngIf="seleccionados.length > 0">
+<div class="sale-summary">
   <div class="total-info">
     <span class="total">{{ total | currency:'$' }}</span>
     <span class="items">{{ seleccionados.length }} items</span>
