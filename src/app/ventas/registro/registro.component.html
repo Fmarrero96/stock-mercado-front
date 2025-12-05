@@ -1,5 +1,20 @@
 <h2>Registrar venta</h2>
 
+<!-- Sección de cliente seleccionado -->
+<div class="client-section">
+  <div class="client-info">
+    <span class="label">Cliente:</span>
+    <span class="client-name" *ngIf="clienteSeleccionado">
+      {{ clienteSeleccionado.nombreApellido }}
+      <span class="client-details" *ngIf="clienteSeleccionado.dni">(DNI: {{ clienteSeleccionado.dni }})</span>
+    </span>
+    <span class="client-name" *ngIf="!clienteSeleccionado">Sin cliente seleccionado</span>
+  </div>
+  <button type="button" class="btn-change-client" (click)="abrirModalClientes()">
+    Cambiar
+  </button>
+</div>
+
 <form [formGroup]="formBusqueda" (ngSubmit)="buscarYAgregar()">
   <div class="search-section">
     <input 
@@ -100,6 +115,10 @@
       <p>¿Estás seguro de que quieres realizar esta venta?</p>
       <div class="sale-summary-confirm">
         <div class="summary-item">
+          <span class="label">Cliente:</span>
+          <span class="value">{{ clienteSeleccionado?.nombreApellido || 'Sin cliente' }}</span>
+        </div>
+        <div class="summary-item">
           <span class="label">Total:</span>
           <span class="value">{{ total | currency:'$' }}</span>
         </div>
@@ -116,6 +135,37 @@
       <button class="btn-confirm-final" (click)="confirmarVentaFinal()">
         Confirmar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para seleccionar cliente -->
+<div class="modal" *ngIf="mostrarModalClientes">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>Seleccionar cliente</span>
+      <button (click)="cerrarModalClientes()">&times;</button>
+    </div>
+    <input 
+      type="text" 
+      [(ngModel)]="filtroCliente" 
+      (input)="onFiltroClienteChange()" 
+      placeholder="Buscar por nombre o DNI..."
+    />
+    <div class="clients-list">
+      <div class="list-header">
+        <span>Nombre</span>
+        <span>DNI</span>
+        <span>Teléfono</span>
+      </div>
+      <div *ngFor="let cliente of clientesFiltrados" class="client-item" (click)="seleccionarCliente(cliente)">
+        <span class="name">{{ cliente.nombreApellido }}</span>
+        <span class="dni">{{ cliente.dni || 'N/A' }}</span>
+        <span class="phone">{{ cliente.telefono || 'N/A' }}</span>
+      </div>
+      <div *ngIf="clientesFiltrados.length === 0" class="no-clients">
+        No se encontraron clientes
+      </div>
     </div>
   </div>
 </div>

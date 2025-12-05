@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProductoService } from '../../productos/producto.service';
 import { Producto ,  ProductoCrearDTO} from '../../productos/producto.model';
 import { VentaService, DetalleVentaDTO, VentaDTO } from '../venta.service';
+import { ClientesService } from '../../clientes/clientes';
+import { Cliente } from '../../clientes/cliente.interface';
 
 interface ItemVenta {
   producto: Producto;
@@ -30,11 +32,19 @@ export class RegistroComponent implements OnInit, AfterViewInit {
   mostrarModalConfirmacion = false;
   filtroNombre = '';
   todosLosProductos: Producto[] = [];
+  
+  // Propiedades para clientes
+  clienteSeleccionado: Cliente | null = null;
+  clientes: Cliente[] = [];
+  mostrarModalClientes = false;
+  clientesFiltrados: Cliente[] = [];
+  filtroCliente = '';
 
   constructor(
     private productoService: ProductoService, 
     private fb: FormBuilder, 
-    private ventaService: VentaService
+    private ventaService: VentaService,
+    private clientesService: ClientesService
   ) {}
 
   ngOnInit(): void {
@@ -50,6 +60,9 @@ export class RegistroComponent implements OnInit, AfterViewInit {
         this.productoEncontrado = null;
       }
     });
+
+    // Cargar clientes y establecer cliente por defecto (ID 1)
+    this.cargarClientes();
   }
 
   ngAfterViewInit(): void {
@@ -171,7 +184,11 @@ export class RegistroComponent implements OnInit, AfterViewInit {
       cantidad: item.cantidad
     }));
     
-    const venta: VentaDTO = { usuarioId: 1, detalles };
+    const venta: VentaDTO = { 
+      usuarioId: 1, 
+      clienteId: this.clienteSeleccionado?.id || 1,
+      detalles 
+    };
     
     this.ventaService.crearVenta(venta).subscribe({
       next: () => {
@@ -250,5 +267,44 @@ export class RegistroComponent implements OnInit, AfterViewInit {
     this.agregarProductoEncontrado();
     this.cerrarModalBusqueda();
     // El focus se maneja en cerrarModalBusqueda()
+  }
+
+  // Métodos para clientes
+  cargarClientes(): void {
+    this.clientes = this.clientesService.obtenerClientes();
+    this.clientesFiltrados = this.clientes;
+    // Establecer cliente por defecto (ID 1)
+    this.clienteSeleccionado = this.clientes.find(c => c.id === 1) || this.clientes[0] || null;
+  }
+
+  abrirModalClientes(): void {
+    this.filtroCliente = '';
+    this.clientesFiltrados = this.clientes;
+    this.mostrarModalClientes = true;
+  }
+
+  cerrarModalClientes(): void {
+    this.mostrarModalClientes = false;
+  }
+
+  filtrarClientes(): void {
+    const filtro = this.filtroCliente.trim().toLowerCase();
+    if (filtro.length === 0) {
+      this.clientesFiltrados = this.clientes;
+    } else {
+      this.clientesFiltrados = this.clientes.filter(c => 
+        c.nombreApellido.toLowerCase().includes(filtro) ||
+        (c.dni && c.dni.includes(filtro))
+      );
+    }
+  }
+
+  seleccionarCliente(cliente: Cliente): void {
+    this.clienteSeleccionado = cliente;
+    this.cerrarModalClientes();
+  }
+
+  onFiltroClienteChange(): void {
+    this.filtrarClientes();
   }
 }

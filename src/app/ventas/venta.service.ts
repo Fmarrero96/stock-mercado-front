@@ -17,6 +17,7 @@ export interface DetalleVentaDTO {
 
 export interface VentaDTO {
   usuarioId: number;
+  clienteId?: number;
   detalles: DetalleVentaDTO[];
 }
 
