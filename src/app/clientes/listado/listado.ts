@@ -37,16 +37,24 @@ export class ListadoComponent implements OnInit {
   }
 
   cargarClientes(): void {
-    this.clientes = this.clientesService.obtenerClientes();
-    this.aplicarFiltro();
+    this.clientesService.obtenerClientes().subscribe({
+      next: (clientes) => {
+        this.clientes = clientes;
+        this.aplicarFiltro();
+      },
+      error: (error) => {
+        console.error('Error al cargar clientes:', error);
+        // Aquí podrías mostrar un mensaje de error al usuario
+      }
+    });
   }
 
   aplicarFiltro(): void {
     const filtroLower = this.filtro.toLowerCase().trim();
     this.clientesFiltrados = this.clientes.filter(cliente =>
       cliente.nombreApellido.toLowerCase().includes(filtroLower) ||
-      cliente.dni.includes(filtroLower) ||
-      cliente.telefono.includes(filtroLower)
+      (cliente.dni && cliente.dni.includes(filtroLower)) ||
+      (cliente.telefono && cliente.telefono.includes(filtroLower))
     );
   }
 
@@ -79,13 +87,28 @@ export class ListadoComponent implements OnInit {
       const datosCliente = this.clienteForm.value;
 
       if (this.modoEdicion && this.clienteSeleccionado) {
-        this.clientesService.actualizarCliente(this.clienteSeleccionado.id!, datosCliente);
+        this.clientesService.actualizarCliente(this.clienteSeleccionado.id!, datosCliente).subscribe({
+          next: (cliente) => {
+            console.log('Cliente actualizado:', cliente);
+            this.cargarClientes();
+            this.cerrarModal();
+          },
+          error: (error) => {
+            console.error('Error al actualizar cliente:', error);
+          }
+        });
       } else {
-        this.clientesService.agregarCliente(datosCliente);
+        this.clientesService.agregarCliente(datosCliente).subscribe({
+          next: (cliente) => {
+            console.log('Cliente creado:', cliente);
+            this.cargarClientes();
+            this.cerrarModal();
+          },
+          error: (error) => {
+            console.error('Error al crear cliente:', error);
+          }
+        });
       }
-
-      this.cargarClientes();
-      this.cerrarModal();
     }
   }
 
@@ -96,9 +119,17 @@ export class ListadoComponent implements OnInit {
 
   eliminarCliente(): void {
     if (this.clienteAEliminar) {
-      this.clientesService.eliminarCliente(this.clienteAEliminar.id!);
-      this.cargarClientes();
-      this.cancelarEliminar();
+      this.clientesService.eliminarCliente(this.clienteAEliminar.id!).subscribe({
+        next: () => {
+          console.log('Cliente eliminado:', this.clienteAEliminar!.id);
+          this.cargarClientes();
+          this.cancelarEliminar();
+        },
+        error: (error) => {
+          console.error('Error al eliminar cliente:', error);
+          this.cancelarEliminar();
+        }
+      });
     }
   }
 

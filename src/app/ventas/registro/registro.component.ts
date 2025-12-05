@@ -271,10 +271,20 @@ export class RegistroComponent implements OnInit, AfterViewInit {
 
   // Métodos para clientes
   cargarClientes(): void {
-    this.clientes = this.clientesService.obtenerClientes();
-    this.clientesFiltrados = this.clientes;
-    // Establecer cliente por defecto (ID 1)
-    this.clienteSeleccionado = this.clientes.find(c => c.id === 1) || this.clientes[0] || null;
+    this.clientesService.obtenerClientes().subscribe({
+      next: (clientes) => {
+        this.clientes = clientes;
+        this.clientesFiltrados = clientes;
+        // Establecer cliente por defecto (ID 1)
+        this.clienteSeleccionado = clientes.find(c => c.id === 1) || clientes[0] || null;
+      },
+      error: (error) => {
+        console.error('Error al cargar clientes:', error);
+        this.clientes = [];
+        this.clientesFiltrados = [];
+        this.clienteSeleccionado = null;
+      }
+    });
   }
 
   abrirModalClientes(): void {
@@ -294,7 +304,8 @@ export class RegistroComponent implements OnInit, AfterViewInit {
     } else {
       this.clientesFiltrados = this.clientes.filter(c => 
         c.nombreApellido.toLowerCase().includes(filtro) ||
-        (c.dni && c.dni.includes(filtro))
+        (c.dni && c.dni.includes(filtro)) ||
+        (c.telefono && c.telefono.includes(filtro))
       );
     }
   }
