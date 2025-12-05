@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProductoService } from '../producto.service';
 import { Producto, ProductoCrearDTO } from '../producto.model';
 import { CategoriaService } from '../../categorias/categoria.service';
 import { Categoria } from '../../categorias/categoria.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-producto-listado',
@@ -12,7 +13,8 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   templateUrl: './listado.component.html',
   styleUrls: ['./listado.component.scss']
 })
-export class ProductoListadoComponent implements OnInit {
+export class ProductoListadoComponent implements OnInit, AfterViewInit {
+  @ViewChild('searchInput') searchInput!: ElementRef;
   productos: Producto[] = [];
   productosFiltrados: Producto[] = [];
   categorias: string[] = ['Electrónica', 'Ropa', 'Alimentos', 'Hogar', 'Otros'];
@@ -24,6 +26,15 @@ export class ProductoListadoComponent implements OnInit {
   productoEditando: Producto | null = null;
   guardando: boolean = false;
   error: string = '';
+
+  mostrarModalStock: boolean = false;
+  stockForm: FormGroup;
+  productoEncontrado: Producto | null = null;
+
+  // Modales de confirmación
+  mostrarConfirmacionEliminar: boolean = false;
+  mostrarConfirmacionGuardarEdicion: boolean = false;
+  productoSeleccionado: Producto | null = null;
 
   productoForm: FormGroup;
 
@@ -44,12 +55,38 @@ export class ProductoListadoComponent implements OnInit {
       categoriaId: [null, [Validators.required]]
     });
 
+    this.stockForm = this.fb.group({
+      codigoBarra: ['', [Validators.required]],
+      cantidadAgregar: [null, [Validators.required, Validators.min(1)]]
+    });
+
     this.setupGananciaCalculations();
+
+    this.stockForm.get('codigoBarra')?.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      tap(codigoBarra => {
+        if (codigoBarra) {
+          this.buscarProductoPorCodigo();
+        } else {
+          this.productoEncontrado = null;
+        }
+      })
+    ).subscribe();
   }
 
   ngOnInit(): void {
     this.cargarProductos();
     this.cargarCategorias();
+  }
+
+  ngAfterViewInit(): void {
+    // Enfocar automáticamente el input de búsqueda cuando se carga el componente
+    setTimeout(() => {
+      if (this.searchInput) {
+        this.searchInput.nativeElement.focus();
+      }
+    }, 200);
   }
 
   setupGananciaCalculations(): void {
@@ -140,7 +177,7 @@ export class ProductoListadoComponent implements OnInit {
       gananciaPorcentaje: 0,
       stock: 0,
       stockMinimo: 0,
-      categoria: null
+      categoriaId: null
     });
     this.productoForm.get('precioCompra')?.markAsPristine();
     this.productoForm.get('precioVenta')?.markAsPristine();
@@ -151,14 +188,33 @@ export class ProductoListadoComponent implements OnInit {
   editarProducto(producto: Producto): void {
     this.modoEdicion = true;
     this.productoEditando = producto;
-    this.productoForm.patchValue(producto);
-    this.productoForm.patchValue({ categoriaId: producto.categoriaId });
+    
+    // Limpiar errores anteriores
+    this.error = '';
+    
+    // Resetear el formulario primero
+    this.productoForm.reset();
+    
+    // Llenar con los datos del producto
+    this.productoForm.patchValue({
+      codigoBarra: producto.codigoBarra,
+      nombre: producto.nombre,
+      descripcion: producto.descripcion,
+      precioCompra: producto.precioCompra,
+      precioVenta: producto.precioVenta,
+      stock: producto.stock,
+      stockMinimo: producto.stockMinimo,
+      categoriaId: producto.categoriaId,
+      gananciaPorcentaje: 0 // Se calculará después
+    });
 
+    // Calcular ganancia después de llenar los precios
     this.calcularGananciaDesdePrecios(producto.precioCompra, producto.precioVenta);
     
-    this.productoForm.get('precioCompra')?.markAsPristine();
-    this.productoForm.get('precioVenta')?.markAsPristine();
-    this.productoForm.get('gananciaPorcentaje')?.markAsPristine();
+    // Marcar como pristine para evitar cálculos automáticos no deseados
+    this.productoForm.markAsPristine();
+    this.productoForm.markAsUntouched();
+    
     this.mostrarModal = true;
   }
 
@@ -170,15 +226,38 @@ export class ProductoListadoComponent implements OnInit {
   }
 
   guardarProducto(): void {
-    if (this.productoForm.invalid) return;
+    if (this.productoForm.invalid) {
+      console.error('Formulario inválido:', this.productoForm.errors);
+      console.error('Detalles de validación:');
+      Object.keys(this.productoForm.controls).forEach(key => {
+        const control = this.productoForm.get(key);
+        if (control && control.errors) {
+          console.error(`- ${key}:`, control.errors, 'Value:', control.value);
+        }
+      });
+      this.error = 'El formulario contiene errores. Por favor, revise los campos.';
+      return;
+    }
 
     this.guardando = true;
+    this.error = ''; // Limpiar errores anteriores
     const productoData = { ...this.productoForm.value };
 
     delete productoData.gananciaPorcentaje;
 
     if (this.modoEdicion && this.productoEditando) {
-      this.productoService.actualizarProducto(this.productoEditando.id, productoData).subscribe({
+      const ProductoEditado: ProductoCrearDTO = {
+        nombre: productoData.nombre,
+        descripcion: productoData.descripcion,
+        codigoBarra: productoData.codigoBarra,
+        precioCompra: productoData.precioCompra,
+        precioVenta: productoData.precioVenta,
+        stock: productoData.stock,
+        stockMinimo: productoData.stockMinimo,
+        categoriaId: productoData.categoriaId
+      };
+
+      this.productoService.actualizarProducto(this.productoEditando.id, ProductoEditado).subscribe({
         next: () => {
           this.cargarProductos();
           this.cerrarModal();
@@ -216,16 +295,8 @@ export class ProductoListadoComponent implements OnInit {
   }
 
   eliminarProducto(id: number): void {
-    if (!confirm('¿Está seguro de eliminar este producto?')) return;
-
-    this.productoService.eliminarProducto(id).subscribe({
-      next: () => {
-        this.cargarProductos();
-      },
-      error: (error) => {
-        this.error = 'Error al eliminar el producto: ' + error.message;
-      }
-    });
+    // Método obsoleto - usar abrirConfirmacionEliminar() en su lugar
+    console.warn('eliminarProducto() called directly - use abrirConfirmacionEliminar() instead');
   }
 
   cargarCategorias(): void {
@@ -243,4 +314,131 @@ export class ProductoListadoComponent implements OnInit {
     const categoria = this.categoriasDisponibles.find(c => c.id === id);
     return categoria ? categoria.nombre : 'Desconocida';
   }
+
+  abrirModalAgregarStock(): void {
+    this.mostrarModalStock = true;
+    this.stockForm.reset();
+    this.productoEncontrado = null;
+    this.error = '';
+  }
+
+  cerrarModalStock(): void {
+    this.mostrarModalStock = false;
+    this.stockForm.reset();
+    this.productoEncontrado = null;
+    this.error = '';
+  }
+
+  buscarProductoPorCodigo(): void {
+    const codigoBarra = this.stockForm.get('codigoBarra')?.value;
+    this.productoEncontrado = null;
+    if (codigoBarra) {
+      this.productoService.buscarPorCodigo(codigoBarra).subscribe({
+        next: (producto: Producto) => {
+          this.productoEncontrado = producto;
+          if (producto) {
+            this.stockForm.get('cantidadAgregar')?.enable();
+          } else {
+            this.stockForm.get('cantidadAgregar')?.disable();
+          }
+        },
+        error: (err: any) => {
+          console.error('Error al buscar producto:', err);
+          this.productoEncontrado = null;
+          this.stockForm.get('cantidadAgregar')?.disable();
+          this.error = 'Producto no encontrado o error en la búsqueda.';
+        }
+      });
+    }
+  }
+
+  guardarStock(): void {
+    if (this.stockForm.invalid || !this.productoEncontrado) {
+      console.log('Formulario inválido o producto no encontrado.');
+      return;
+    }
+
+    const cantidadAgregar = this.stockForm.get('cantidadAgregar')?.value;
+    const nuevoStock = this.productoEncontrado.stock + cantidadAgregar;
+
+    const productoParaActualizar: Partial<Producto> = {
+      codigoBarra: this.productoEncontrado.codigoBarra,
+      nombre: this.productoEncontrado.nombre,
+      descripcion: this.productoEncontrado.descripcion,
+      precioCompra: this.productoEncontrado.precioCompra,
+      precioVenta: this.productoEncontrado.precioVenta,
+      stock: nuevoStock,
+      stockMinimo: this.productoEncontrado.stockMinimo,
+      categoriaId: this.productoEncontrado.categoriaId
+    };
+
+    this.productoService.actualizarProducto(this.productoEncontrado.id, productoParaActualizar).subscribe({
+      next: () => {
+        this.cargarProductos();
+        this.cerrarModalStock();
+      },
+      error: (error: any) => {
+        this.error = 'Error al actualizar el stock: ' + error.message;
+      }
+    });
+  }
+
+  // Métodos para modales de confirmación
+
+  abrirConfirmacionEliminar(producto: Producto): void {
+    this.productoSeleccionado = producto;
+    this.mostrarConfirmacionEliminar = true;
+  }
+
+  cerrarConfirmacionEliminar(): void {
+    this.mostrarConfirmacionEliminar = false;
+    this.productoSeleccionado = null;
+  }
+
+  confirmarEliminar(): void {
+    if (this.productoSeleccionado?.id) {
+      this.mostrarConfirmacionEliminar = false;
+      this.eliminarProductoFinal(this.productoSeleccionado.id);
+      this.productoSeleccionado = null;
+    }
+  }
+
+  private eliminarProductoFinal(id: number): void {
+    this.productoService.eliminarProducto(id).subscribe({
+      next: () => {
+        this.cargarProductos();
+      },
+      error: (error) => {
+        this.error = 'Error al eliminar el producto: ' + error.message;
+      }
+    });
+  }
+
+  abrirConfirmacionGuardarEdicion(): void {
+    this.mostrarConfirmacionGuardarEdicion = true;
+  }
+
+  cerrarConfirmacionGuardarEdicion(): void {
+    this.mostrarConfirmacionGuardarEdicion = false;
+  }
+
+  confirmarGuardarEdicion(): void {
+    this.mostrarConfirmacionGuardarEdicion = false;
+    
+    // Log form state for debugging
+    console.log('Form valid:', this.productoForm.valid);
+    console.log('Form errors:', this.productoForm.errors);
+    console.log('Form value:', this.productoForm.value);
+    
+    // Check individual field errors
+    Object.keys(this.productoForm.controls).forEach(key => {
+      const control = this.productoForm.get(key);
+      if (control && control.errors) {
+        console.log(`${key} errors:`, control.errors);
+      }
+    });
+    
+    this.guardarProducto();
+  }
+
 }

@@ -23,7 +23,7 @@ export class ProductoService {
     return this.http.post<Producto>(this.apiUrl, producto);
   }
 
-  actualizarProducto(id: number, producto: Partial<Producto>): Observable<Producto> {
+  actualizarProducto(id: number, producto: Partial<ProductoCrearDTO>): Observable<Producto> {
     return this.http.put<Producto>(`${this.apiUrl}/${id}`, producto);
   }
 

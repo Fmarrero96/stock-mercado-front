@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { Proveedor, ProveedorService } from '../proveedor.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -8,7 +8,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   templateUrl: './listado.component.html',
   styleUrls: ['./listado.component.scss']
 })
-export class ListadoComponent implements OnInit {
+export class ListadoComponent implements OnInit, AfterViewInit {
+  @ViewChild('searchInput') searchInput!: ElementRef;
   proveedores: Proveedor[] = [];
   filtrados: Proveedor[] = [];
   termino = '';
@@ -22,6 +23,15 @@ export class ListadoComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargar();
+  }
+
+  ngAfterViewInit(): void {
+    // Enfocar automáticamente el input de búsqueda cuando se carga el componente
+    setTimeout(() => {
+      if (this.searchInput) {
+        this.searchInput.nativeElement.focus();
+      }
+    }, 200);
   }
 
   cargar(): void {

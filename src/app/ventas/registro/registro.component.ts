@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ProductoService } from '../../productos/producto.service';
 import { Producto ,  ProductoCrearDTO} from '../../productos/producto.model';
@@ -16,7 +16,7 @@ interface ItemVenta {
   templateUrl: './registro.component.html',
   styleUrls: ['./registro.component.scss']
 })
-export class RegistroComponent implements OnInit {
+export class RegistroComponent implements OnInit, AfterViewInit {
   seleccionados: ItemVenta[] = [];
   total = 0;
   formBusqueda!: FormGroup;
@@ -24,8 +24,10 @@ export class RegistroComponent implements OnInit {
   mostrarToast = false;
   productoEncontrado: Producto | null = null;
   @ViewChild('codigoBarrasInput') codigoBarrasInput!: ElementRef;
+  @ViewChild('modalSearchInput') modalSearchInput!: ElementRef;
   productosFiltrados: Producto[] = [];
   mostrarModalBusqueda = false;
+  mostrarModalConfirmacion = false;
   filtroNombre = '';
   todosLosProductos: Producto[] = [];
 
@@ -48,6 +50,15 @@ export class RegistroComponent implements OnInit {
         this.productoEncontrado = null;
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Enfocar automáticamente el input de código de barras cuando se carga el componente
+    setTimeout(() => {
+      if (this.codigoBarrasInput) {
+        this.codigoBarrasInput.nativeElement.focus();
+      }
+    }, 100);
   }
 
   buscarProducto(codigo: string): void {
@@ -127,6 +138,23 @@ export class RegistroComponent implements OnInit {
            !this.seleccionados.some(item => item.cantidad > item.producto.stock);
   }
 
+  abrirModalConfirmacion(): void {
+    if (!this.puedeConfirmar) {
+      this.toast('Debe agregar al menos un producto válido.');
+      return;
+    }
+    this.mostrarModalConfirmacion = true;
+  }
+
+  cerrarModalConfirmacion(): void {
+    this.mostrarModalConfirmacion = false;
+  }
+
+  confirmarVentaFinal(): void {
+    this.mostrarModalConfirmacion = false;
+    this.confirmarVenta();
+  }
+
   confirmarVenta(): void {
     if (this.seleccionados.length === 0) {
       this.toast('Debe agregar al menos un producto.');
@@ -150,6 +178,13 @@ export class RegistroComponent implements OnInit {
         this.toast('Venta registrada correctamente ✅');
         this.seleccionados = [];
         this.total = 0;
+        this.productoEncontrado = null;
+        // Reenfocar el input para la siguiente venta
+        setTimeout(() => {
+          if (this.codigoBarrasInput) {
+            this.codigoBarrasInput.nativeElement.focus();
+          }
+        }, 100);
       },
       error: () => {
         this.toast('Error al registrar venta ❌');
@@ -167,6 +202,22 @@ export class RegistroComponent implements OnInit {
     this.filtroNombre = '';
     this.productosFiltrados = [];
     this.mostrarModalBusqueda = true;
+    // Enfocar el input del modal después de que se renderice
+    setTimeout(() => {
+      const modalInput = document.getElementById('modalSearchInput') as HTMLInputElement;
+      if (modalInput) {
+        console.log('Enfocando modal input con getElementById');
+        modalInput.focus();
+      } else {
+        console.log('Modal input no encontrado con getElementById');
+        // Intento con querySelector como respaldo
+        const modalInputClass = document.querySelector('.input-busqueda-centrado') as HTMLInputElement;
+        if (modalInputClass) {
+          console.log('Enfocando modal input con querySelector como respaldo');
+          modalInputClass.focus();
+        }
+      }
+    }, 500);
     this.productoService.obtenerProductos().subscribe(productos => {
       this.todosLosProductos = productos;
       this.productosFiltrados = productos.slice(0, 10);
@@ -175,6 +226,12 @@ export class RegistroComponent implements OnInit {
 
   cerrarModalBusqueda(): void {
     this.mostrarModalBusqueda = false;
+    // Reenfocar el input de código de barras después de cerrar el modal
+    setTimeout(() => {
+      if (this.codigoBarrasInput) {
+        this.codigoBarrasInput.nativeElement.focus();
+      }
+    }, 100);
   }
 
   filtrarProductosPorNombre(): void {
@@ -192,5 +249,6 @@ export class RegistroComponent implements OnInit {
     this.productoEncontrado = producto;
     this.agregarProductoEncontrado();
     this.cerrarModalBusqueda();
+    // El focus se maneja en cerrarModalBusqueda()
   }
 }

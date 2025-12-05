@@ -1,12 +1,19 @@
-<h3>⚠️ Productos con stock bajo</h3>
+<h2>Stock Bajo</h2>
 
-<p *ngIf="error">{{ error }}</p>
-<p *ngIf="cargando">Cargando...</p>
+<div class="error" *ngIf="error">{{ error }}</div>
+<div class="loading" *ngIf="cargando">Cargando...</div>
 
-<ul *ngIf="productos.length > 0">
-  <li *ngFor="let p of productos">
-    {{ p.nombre }} ({{ p.stock }} unidades)
-  </li>
-</ul>
+<div class="products-list" *ngIf="productos.length > 0">
+  <div class="list-header">
+    <span>Producto</span>
+    <span>Stock Actual</span>
+  </div>
+  <div *ngFor="let p of productos" class="product-item">
+    <span class="name">{{ p.nombre }}</span>
+    <span class="stock">{{ p.stock }} unidades</span>
+  </div>
+</div>
 
-<p *ngIf="!cargando && productos.length === 0">Todos los productos tienen stock suficiente ✅</p>
+<div class="no-data" *ngIf="!cargando && productos.length === 0">
+  <p>Todos los productos tienen stock suficiente</p>
+</div>

@@ -1,54 +1,41 @@
-<div class="page-header">
-  <h2>Gestión de Proveedores</h2>
-  <button class="btn-primary" (click)="abrirModal()">
-    <span class="icon">➕</span>
-    Nuevo Proveedor
+<div class="header">
+  <h2>Proveedores</h2>
+  <button class="btn-add" (click)="abrirModal()">
+    Nuevo
   </button>
 </div>
 
-<div class="search-bar">
-  <div class="search-input">
-    <span class="search-icon">🔍</span>
-    <input 
-      type="text" 
-      [(ngModel)]="termino" 
-      (input)="aplicarFiltro()" 
-      placeholder="Buscar por nombre o email..."
-    />
-  </div>
+<div class="search">
+  <input 
+    #searchInput
+    type="text" 
+    [(ngModel)]="termino" 
+    (input)="aplicarFiltro()" 
+    placeholder="Buscar proveedores..."
+    id="searchInput"
+  />
 </div>
 
-<div class="alert error" *ngIf="error">
-  <span class="alert-icon">⚠️</span>
+<div class="error" *ngIf="error">
   {{ error }}
 </div>
 
-<div class="card" *ngIf="filtrados.length > 0; else sinProveedores">
-  <div class="table-responsive">
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Teléfono</th>
-          <th>Dirección</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let p of filtrados">
-            <td>{{ p.nombre }}</td>
-            <td>{{ p.email }}</td>
-            <td>{{ p.telefono }}</td>
-            <td>{{ p.direccion }}</td>
-            <td class="actions">
-            <button class="btn-icon primary" (click)="abrirModal(p)" title="Editar">
-                <span class="icon">✏️</span>
-              </button>
-            </td>
-        </tr>
-      </tbody>
-    </table>
+<div class="providers-table" *ngIf="filtrados.length > 0; else sinProveedores">
+  <div class="table-header">
+    <span>Nombre</span>
+    <span>Email</span>
+    <span>Teléfono</span>
+    <span>Dirección</span>
+    <span></span>
+  </div>
+  <div *ngFor="let p of filtrados" class="provider-row">
+    <span class="name">{{ p.nombre }}</span>
+    <span class="email">{{ p.email }}</span>
+    <span class="phone">{{ p.telefono || 'Sin teléfono' }}</span>
+    <span class="address">{{ p.direccion || 'Sin dirección' }}</span>
+    <div class="actions">
+      <button class="btn-edit" (click)="abrirModal(p)">✏️</button>
+    </div>
   </div>
 </div>
 
@@ -61,74 +48,81 @@
 
 <!-- Modal -->
 <div class="modal" *ngIf="mostrarModal">
-  <div class="modal-backdrop" (click)="cerrarModal()"></div>
   <div class="modal-content">
     <div class="modal-header">
-      <h3>{{ modoEdicion ? 'Editar Proveedor' : 'Nuevo Proveedor' }}</h3>
-      <button class="btn-icon" (click)="cerrarModal()">
-        <span class="icon">✖️</span>
-      </button>
+      <span>{{ modoEdicion ? 'Editar' : 'Nuevo' }} Proveedor</span>
+      <button (click)="cerrarModal()">&times;</button>
     </div>
 
-    <form [formGroup]="proveedorForm" (ngSubmit)="guardarProveedor()" class="modal-body">
-      <div class="form-group">
-        <label>Nombre</label>
-        <input 
-          formControlName="nombre" 
-          type="text"
-          placeholder="Ingrese el nombre"
-        />
-        <span class="error-message" *ngIf="proveedorForm.get('nombre')?.errors?.['required'] && proveedorForm.get('nombre')?.touched">
-          El nombre es requerido
-        </span>
-      </div>
+    <div class="modal-body">
+      <form [formGroup]="proveedorForm" (ngSubmit)="guardarProveedor()">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="nombre">Nombre</label>
+            <input 
+              id="nombre"
+              formControlName="nombre" 
+              type="text"
+              placeholder="Nombre del proveedor"
+              [class.error]="proveedorForm.get('nombre')?.invalid && proveedorForm.get('nombre')?.touched"
+            />
+            <span class="error" *ngIf="proveedorForm.get('nombre')?.errors?.['required'] && proveedorForm.get('nombre')?.touched">
+              Requerido
+            </span>
+          </div>
 
-      <div class="form-group">
-        <label>Email</label>
-        <input 
-          formControlName="email" 
-          type="email"
-          placeholder="Ingrese el email"
-        />
-        <span class="error-message" *ngIf="proveedorForm.get('email')?.errors?.['required'] && proveedorForm.get('email')?.touched">
-          El email es requerido
-        </span>
-        <span class="error-message" *ngIf="proveedorForm.get('email')?.errors?.['email'] && proveedorForm.get('email')?.touched">
-          El email no es válido
-        </span>
-      </div>
+          <div class="form-field">
+            <label for="email">Email</label>
+            <input 
+              id="email"
+              formControlName="email" 
+              type="email"
+              placeholder="Email del proveedor"
+              [class.error]="proveedorForm.get('email')?.invalid && proveedorForm.get('email')?.touched"
+            />
+            <span class="error" *ngIf="proveedorForm.get('email')?.errors?.['required'] && proveedorForm.get('email')?.touched">
+              Requerido
+            </span>
+            <span class="error" *ngIf="proveedorForm.get('email')?.errors?.['email'] && proveedorForm.get('email')?.touched">
+              Email no válido
+            </span>
+          </div>
 
-      <div class="form-group">
-        <label>Teléfono</label>
-        <input 
-          formControlName="telefono"
-          type="tel"
-          placeholder="Ingrese el teléfono"
-        />
-      </div>
+          <div class="form-field">
+            <label for="telefono">Teléfono</label>
+            <input 
+              id="telefono"
+              formControlName="telefono"
+              type="tel"
+              placeholder="Teléfono"
+            />
+          </div>
 
-      <div class="form-group">
-        <label>Dirección</label>
-        <input 
-          formControlName="direccion"
-          type="text"
-          placeholder="Ingrese la dirección"
-        />
-      </div>
-    
+          <div class="form-field">
+            <label for="direccion">Dirección</label>
+            <input 
+              id="direccion"
+              formControlName="direccion"
+              type="text"
+              placeholder="Dirección"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
 
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary" (click)="cerrarModal()">
-          Cancelar
-        </button>
-        <button 
-          type="submit" 
-          class="btn-primary" 
-          [disabled]="proveedorForm.invalid"
-        >
-          {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
-        </button>
-      </div>
-    </form>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="cerrarModal()">
+        Cancelar
+      </button>
+      <button 
+        type="button" 
+        class="btn-save" 
+        (click)="guardarProveedor()"
+        [disabled]="proveedorForm.invalid"
+      >
+        {{ modoEdicion ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
   </div>
 </div>

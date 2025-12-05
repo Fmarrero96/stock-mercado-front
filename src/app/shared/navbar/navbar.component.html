@@ -1,31 +1,30 @@
 <nav class="navbar">
-  <div class="navbar-brand">
-    <img src="assets/icono.png" class="logo">
-    <span class="brand-name">VendeYA  </span>
+  <div class="brand">
+    <img src="assets/icono.png" class="logo" alt="Logo">
+    <span class="name">VendeYA</span>
   </div>
 
-  <div class="navbar-menu">
-    <ng-container *ngFor="let item of menuItems">
-      <a 
-        [routerLink]="item.path"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: item.path === '/ventas' }"
-        class="menu-item"
-      >
-        <span class="item-icon">{{ item.icon }}</span>
-        <span class="item-label">{{ item.label }}</span>
-      </a>
-    </ng-container>
+  <div class="menu">
+    <a 
+      *ngFor="let item of menuItems"
+      [routerLink]="item.path"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: item.path === '/ventas' }"
+      class="menu-link"
+      [title]="item.label + ' (' + item.shortcut + ')'"
+    >
+      {{ item.label }}
+    </a>
   </div>
 
-  <div class="navbar-user">
-    <button class="user-menu" (click)="toggleMenuUsuario()">
-      <span class="user-icon">👤</span>
-      <span class="user-name">{{ nombreUsuario }}</span>
+  <div class="user" [class.open]="mostrarMenuUsuario">
+    <button class="user-btn" (click)="toggleMenuUsuario()">
+      {{ nombreUsuario }}
+      <span class="arrow">▼</span>
     </button>
 
-    <div class="user-dropdown" *ngIf="mostrarMenuUsuario">
-      <button class="dropdown-item" (click)="cerrarSesion()">
+    <div class="dropdown" *ngIf="mostrarMenuUsuario">
+      <button class="dropdown-btn" (click)="cerrarSesion()">
         Cerrar sesión
       </button>
     </div>
