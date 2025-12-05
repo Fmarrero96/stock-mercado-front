@@ -1,0 +1,153 @@
+<div class="clientes-container">
+  <div class="header">
+    <h2>Clientes</h2>
+    <button class="btn-add" (click)="abrirModal()">Nuevo</button>
+  </div>
+
+  <div class="filters">
+    <div class="search">
+      <input 
+        type="text"
+        [(ngModel)]="filtro"
+        (input)="onFiltroChange()"
+        placeholder="Buscar por nombre, DNI o teléfono..."
+      >
+    </div>
+  </div>
+
+  <div class="clientes-table" *ngIf="clientesFiltrados.length > 0">
+    <div class="table-header">
+      <span>DNI</span>
+      <span>Nombre y Apellido</span>
+      <span>Teléfono</span>
+      <span>Dirección</span>
+      <span></span>
+    </div>
+
+    <div class="cliente-row" *ngFor="let cliente of clientesFiltrados">
+      <span class="dni">{{cliente.dni}}</span>
+      <span class="nombre">{{cliente.nombreApellido}}</span>
+      <span class="telefono">{{cliente.telefono}}</span>
+      <span class="direccion">{{cliente.direccion}}</span>
+      <div class="actions">
+        <button class="btn-edit" (click)="abrirModal(cliente)" title="Editar">
+          ✏️
+        </button>
+        <button class="btn-delete" (click)="confirmarEliminar(cliente)" title="Eliminar">
+          🗑️
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="clientesFiltrados.length === 0">
+    <span class="empty-icon">👥</span>
+    <p>No se encontraron clientes</p>
+  </div>
+</div>
+
+<!-- Modal para agregar/editar cliente -->
+<div class="modal" *ngIf="mostrarModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span>{{modoEdicion ? 'Editar Cliente' : 'Agregar Cliente'}}</span>
+      <button (click)="cerrarModal()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <form [formGroup]="clienteForm" (ngSubmit)="guardarCliente()">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="dni">DNI (opcional)</label>
+            <input 
+              id="dni"
+              type="text"
+              formControlName="dni"
+              [class.error]="dni?.invalid && dni?.touched"
+              placeholder="12345678"
+            >
+            <span class="error" *ngIf="dni?.invalid && dni?.touched">
+              El DNI debe tener 7-8 dígitos
+            </span>
+          </div>
+
+          <div class="form-field">
+            <label for="nombreApellido">Nombre y Apellido</label>
+            <input 
+              id="nombreApellido"
+              type="text"
+              formControlName="nombreApellido"
+              [class.error]="nombreApellido?.invalid && nombreApellido?.touched"
+              placeholder="Juan Pérez"
+            >
+            <span class="error" *ngIf="nombreApellido?.invalid && nombreApellido?.touched">
+              El nombre es requerido (mínimo 2 caracteres)
+            </span>
+          </div>
+
+          <div class="form-field">
+            <label for="telefono">Teléfono (opcional)</label>
+            <input 
+              id="telefono"
+              type="text"
+              formControlName="telefono"
+              [class.error]="telefono?.invalid && telefono?.touched"
+              placeholder="1123456789"
+            >
+            <span class="error" *ngIf="telefono?.invalid && telefono?.touched">
+              El teléfono debe tener entre 10-15 dígitos
+            </span>
+          </div>
+
+          <div class="form-field">
+            <label for="direccion">Dirección (opcional)</label>
+            <input 
+              id="direccion"
+              type="text"
+              formControlName="direccion"
+              placeholder="Calle Falsa 123"
+            >
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="cerrarModal()">
+        Cancelar
+      </button>
+      <button 
+        type="button" 
+        class="btn-save"
+        [disabled]="clienteForm.invalid"
+        (click)="guardarCliente()"
+      >
+        {{modoEdicion ? 'Actualizar' : 'Guardar'}}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal" *ngIf="mostrarConfirmacionEliminar">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <span>Confirmar eliminación</span>
+      <button (click)="cancelarEliminar()">×</button>
+    </div>
+    
+    <div class="modal-body">
+      <p>¿Estás seguro de que quieres eliminar al cliente <strong>{{clienteAEliminar?.nombreApellido}}</strong>?</p>
+      <p class="warning">Esta acción no se puede deshacer.</p>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="cancelarEliminar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn-delete-confirm" (click)="eliminarCliente()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

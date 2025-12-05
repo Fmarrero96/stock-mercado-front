@@ -14,9 +14,10 @@ export class NavbarComponent implements OnInit {
     { path: '/ventas', label: 'Inicio', permission: 'inicio', shortcut: 'F1' },
     { path: '/ventas/resumen', label: 'Ventas', permission: 'ventas', shortcut: 'F2' },
     { path: '/productos', label: 'Productos', permission: 'productos', shortcut: 'F3' },
-    { path: '/categorias', label: 'Categorías', permission: 'productos', shortcut: 'F6' },
-    { path: '/proveedores', label: 'Proveedores', permission: 'proveedores', shortcut: 'F4' },
-    { path: '/usuarios', label: 'Usuarios', permission: 'usuarios', shortcut: 'F5' }
+    { path: '/categorias', label: 'Categorías', permission: 'productos', shortcut: 'F4' },
+    { path: '/proveedores', label: 'Proveedores', permission: 'proveedores', shortcut: 'F5' },
+    { path: '/usuarios', label: 'Usuarios', permission: 'usuarios', shortcut: 'F6' },
+    { path: '/clientes', label: 'Clientes', permission: 'clientes', shortcut: 'F7' }
   ];
 
   menuItems: any[] = []; // Los items que se mostrarán en el menú
