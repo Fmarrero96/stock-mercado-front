@@ -39,6 +39,10 @@ export class AppComponent {
         event.preventDefault();
         this.router.navigate(['/usuarios']);
         break;
+      case 'F7':
+        event.preventDefault();
+        this.router.navigate(['/clientes']);
+        break;
     }
   }
 } 
