@@ -31,6 +31,11 @@ export class ProductoListadoComponent implements OnInit, AfterViewInit {
   stockForm: FormGroup;
   productoEncontrado: Producto | null = null;
 
+  // Modales de confirmación
+  mostrarConfirmacionEliminar: boolean = false;
+  mostrarConfirmacionGuardarEdicion: boolean = false;
+  productoSeleccionado: Producto | null = null;
+
   productoForm: FormGroup;
 
   constructor(
@@ -172,7 +177,7 @@ export class ProductoListadoComponent implements OnInit, AfterViewInit {
       gananciaPorcentaje: 0,
       stock: 0,
       stockMinimo: 0,
-      categoria: null
+      categoriaId: null
     });
     this.productoForm.get('precioCompra')?.markAsPristine();
     this.productoForm.get('precioVenta')?.markAsPristine();
@@ -183,14 +188,33 @@ export class ProductoListadoComponent implements OnInit, AfterViewInit {
   editarProducto(producto: Producto): void {
     this.modoEdicion = true;
     this.productoEditando = producto;
-    this.productoForm.patchValue(producto);
-    this.productoForm.patchValue({ categoriaId: producto.categoriaId });
+    
+    // Limpiar errores anteriores
+    this.error = '';
+    
+    // Resetear el formulario primero
+    this.productoForm.reset();
+    
+    // Llenar con los datos del producto
+    this.productoForm.patchValue({
+      codigoBarra: producto.codigoBarra,
+      nombre: producto.nombre,
+      descripcion: producto.descripcion,
+      precioCompra: producto.precioCompra,
+      precioVenta: producto.precioVenta,
+      stock: producto.stock,
+      stockMinimo: producto.stockMinimo,
+      categoriaId: producto.categoriaId,
+      gananciaPorcentaje: 0 // Se calculará después
+    });
 
+    // Calcular ganancia después de llenar los precios
     this.calcularGananciaDesdePrecios(producto.precioCompra, producto.precioVenta);
     
-    this.productoForm.get('precioCompra')?.markAsPristine();
-    this.productoForm.get('precioVenta')?.markAsPristine();
-    this.productoForm.get('gananciaPorcentaje')?.markAsPristine();
+    // Marcar como pristine para evitar cálculos automáticos no deseados
+    this.productoForm.markAsPristine();
+    this.productoForm.markAsUntouched();
+    
     this.mostrarModal = true;
   }
 
@@ -202,9 +226,21 @@ export class ProductoListadoComponent implements OnInit, AfterViewInit {
   }
 
   guardarProducto(): void {
-    if (this.productoForm.invalid) return;
+    if (this.productoForm.invalid) {
+      console.error('Formulario inválido:', this.productoForm.errors);
+      console.error('Detalles de validación:');
+      Object.keys(this.productoForm.controls).forEach(key => {
+        const control = this.productoForm.get(key);
+        if (control && control.errors) {
+          console.error(`- ${key}:`, control.errors, 'Value:', control.value);
+        }
+      });
+      this.error = 'El formulario contiene errores. Por favor, revise los campos.';
+      return;
+    }
 
     this.guardando = true;
+    this.error = ''; // Limpiar errores anteriores
     const productoData = { ...this.productoForm.value };
 
     delete productoData.gananciaPorcentaje;
@@ -259,16 +295,8 @@ export class ProductoListadoComponent implements OnInit, AfterViewInit {
   }
 
   eliminarProducto(id: number): void {
-    if (!confirm('¿Está seguro de eliminar este producto?')) return;
-
-    this.productoService.eliminarProducto(id).subscribe({
-      next: () => {
-        this.cargarProductos();
-      },
-      error: (error) => {
-        this.error = 'Error al eliminar el producto: ' + error.message;
-      }
-    });
+    // Método obsoleto - usar abrirConfirmacionEliminar() en su lugar
+    console.warn('eliminarProducto() called directly - use abrirConfirmacionEliminar() instead');
   }
 
   cargarCategorias(): void {
@@ -354,4 +382,63 @@ export class ProductoListadoComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  // Métodos para modales de confirmación
+
+  abrirConfirmacionEliminar(producto: Producto): void {
+    this.productoSeleccionado = producto;
+    this.mostrarConfirmacionEliminar = true;
+  }
+
+  cerrarConfirmacionEliminar(): void {
+    this.mostrarConfirmacionEliminar = false;
+    this.productoSeleccionado = null;
+  }
+
+  confirmarEliminar(): void {
+    if (this.productoSeleccionado?.id) {
+      this.mostrarConfirmacionEliminar = false;
+      this.eliminarProductoFinal(this.productoSeleccionado.id);
+      this.productoSeleccionado = null;
+    }
+  }
+
+  private eliminarProductoFinal(id: number): void {
+    this.productoService.eliminarProducto(id).subscribe({
+      next: () => {
+        this.cargarProductos();
+      },
+      error: (error) => {
+        this.error = 'Error al eliminar el producto: ' + error.message;
+      }
+    });
+  }
+
+  abrirConfirmacionGuardarEdicion(): void {
+    this.mostrarConfirmacionGuardarEdicion = true;
+  }
+
+  cerrarConfirmacionGuardarEdicion(): void {
+    this.mostrarConfirmacionGuardarEdicion = false;
+  }
+
+  confirmarGuardarEdicion(): void {
+    this.mostrarConfirmacionGuardarEdicion = false;
+    
+    // Log form state for debugging
+    console.log('Form valid:', this.productoForm.valid);
+    console.log('Form errors:', this.productoForm.errors);
+    console.log('Form value:', this.productoForm.value);
+    
+    // Check individual field errors
+    Object.keys(this.productoForm.controls).forEach(key => {
+      const control = this.productoForm.get(key);
+      if (control && control.errors) {
+        console.log(`${key} errors:`, control.errors);
+      }
+    });
+    
+    this.guardarProducto();
+  }
+
 }
