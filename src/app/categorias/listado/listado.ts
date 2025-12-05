@@ -19,6 +19,10 @@ export class Listado implements OnInit, AfterViewInit {
   mostrarModal = false;
   modoEdicion = false;
   categoriaSeleccionada: Categoria | null = null;
+
+  // Modales de confirmación
+  mostrarConfirmacionEliminar = false;
+  mostrarConfirmacionToggle = false;
   
   categoriaForm!: FormGroup;
   guardando = false;
@@ -151,45 +155,69 @@ export class Listado implements OnInit, AfterViewInit {
     }
   }
 
-  eliminarCategoria(categoria: Categoria): void {
-    if (!categoria.id) return;
+  // Métodos de confirmación para eliminar
+  abrirConfirmacionEliminar(categoria: Categoria): void {
+    this.categoriaSeleccionada = categoria;
+    this.mostrarConfirmacionEliminar = true;
+  }
 
-    const confirmar = confirm(`¿Está seguro de eliminar la categoría "${categoria.nombre}"?\n\nEsta acción no se puede deshacer.`);
-    
-    if (confirmar) {
-      this.categoriaService.eliminarCategoria(categoria.id).subscribe({
-        next: () => {
-          this.cargarCategorias();
-          this.mostrarMensaje(`Categoría "${categoria.nombre}" eliminada correctamente ✅`);
-        },
-        error: (error) => {
-          console.error('Error al eliminar categoría:', error);
-          this.mostrarError('Error al eliminar la categoría. Puede que tenga productos asociados.');
-        }
-      });
+  cerrarConfirmacionEliminar(): void {
+    this.mostrarConfirmacionEliminar = false;
+    this.categoriaSeleccionada = null;
+  }
+
+  confirmarEliminar(): void {
+    if (this.categoriaSeleccionada?.id) {
+      this.mostrarConfirmacionEliminar = false;
+      this.eliminarCategoriaFinal(this.categoriaSeleccionada.id);
+      this.categoriaSeleccionada = null;
     }
   }
 
-  toggleActivarCategoria(categoria: Categoria): void {
-    if (!categoria.id) return;
+  private eliminarCategoriaFinal(id: number): void {
+    this.categoriaService.eliminarCategoria(id).subscribe({
+      next: () => {
+        this.cargarCategorias();
+        this.mostrarMensaje('Categoría eliminada correctamente ✅');
+      },
+      error: (error) => {
+        console.error('Error al eliminar categoría:', error);
+        this.mostrarError('Error al eliminar la categoría. Puede que tenga productos asociados.');
+      }
+    });
+  }
 
-    const nuevoEstado = !categoria.activo;
-    const accion = nuevoEstado ? 'activar' : 'desactivar';
-    
-    const confirmar = confirm(`¿Está seguro de ${accion} la categoría "${categoria.nombre}"?`);
-    
-    if (confirmar) {
-      this.categoriaService.toggleActivarCategoria(categoria.id, nuevoEstado).subscribe({
-        next: () => {
-          this.cargarCategorias();
-          this.mostrarMensaje(`Categoría ${nuevoEstado ? 'activada' : 'desactivada'} correctamente ✅`);
-        },
-        error: (error) => {
-          console.error('Error al cambiar estado de categoría:', error);
-          this.mostrarError(`Error al ${accion} la categoría`);
-        }
-      });
+  // Métodos de confirmación para toggle
+  abrirConfirmacionToggle(categoria: Categoria): void {
+    this.categoriaSeleccionada = categoria;
+    this.mostrarConfirmacionToggle = true;
+  }
+
+  cerrarConfirmacionToggle(): void {
+    this.mostrarConfirmacionToggle = false;
+    this.categoriaSeleccionada = null;
+  }
+
+  confirmarToggle(): void {
+    if (this.categoriaSeleccionada?.id) {
+      this.mostrarConfirmacionToggle = false;
+      const nuevoEstado = !this.categoriaSeleccionada.activo;
+      this.toggleActivarCategoriaFinal(this.categoriaSeleccionada.id, nuevoEstado);
+      this.categoriaSeleccionada = null;
     }
+  }
+
+  private toggleActivarCategoriaFinal(id: number, nuevoEstado: boolean): void {
+    this.categoriaService.toggleActivarCategoria(id, nuevoEstado).subscribe({
+      next: () => {
+        this.cargarCategorias();
+        this.mostrarMensaje(`Categoría ${nuevoEstado ? 'activada' : 'desactivada'} correctamente ✅`);
+      },
+      error: (error) => {
+        console.error('Error al cambiar estado de categoría:', error);
+        this.mostrarError(`Error al cambiar el estado de la categoría`);
+      }
+    });
   }
 
   private mostrarMensaje(mensaje: string): void {

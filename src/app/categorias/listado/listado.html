@@ -1,71 +1,47 @@
-<div class="page-header">
-  <h2>Gestión de Categorías</h2>
-  <button class="btn-primary" (click)="abrirModalCrear()">
-    <span class="icon">➕</span>
-    Nueva Categoría
+<div class="header">
+  <h2>Categorías</h2>
+  <button class="btn-add" (click)="abrirModalCrear()">
+    Nuevo
   </button>
 </div>
 
-<div class="search-bar">
-  <div class="search-input">
-    <span class="search-icon">🔍</span>
-    <input 
-      #searchInput
-      type="text" 
-      [(ngModel)]="terminoBusqueda" 
-      (ngModelChange)="filtrarCategorias()"
-      placeholder="Buscar categorías..."
-      id="searchInput"
-    >
-  </div>
+<div class="search">
+  <input 
+    #searchInput
+    type="text" 
+    [(ngModel)]="terminoBusqueda" 
+    (ngModelChange)="filtrarCategorias()"
+    placeholder="Buscar categorías..."
+    id="searchInput"
+  >
 </div>
 
-<div class="alert error" *ngIf="error">
-  <span class="alert-icon">⚠️</span>
+<div class="error" *ngIf="error">
   {{ error }}
 </div>
 
-<div class="card" *ngIf="categorias.length > 0; else sinCategorias">
-  <div class="table-responsive">
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Descripción</th>
-          <th>Estado</th>
-          <th>Fecha Creación</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let categoria of categoriasFiltradas">
-          <td>{{ categoria.nombre }}</td>
-          <td>{{ categoria.descripcion || 'Sin descripción' }}</td>
-          <td>
-            <span class="badge" 
-                  [style.background-color]="categoria.activo ? '#e8f5e8' : '#f5f5f5'"
-                  [style.color]="categoria.activo ? '#28a745' : '#6c757d'">
-              {{ categoria.activo ? 'Activa' : 'Inactiva' }}
-            </span>
-          </td>
-          <td>{{ categoria.fechaCreacion | date:'dd/MM/yyyy' }}</td>
-          <td class="actions">
-            <button class="btn-icon primary" (click)="abrirModalEditar(categoria)" title="Editar">
-              <span class="icon">✏️</span>
-            </button>
-            <button class="btn-icon" 
-                    [ngClass]="categoria.activo ? 'danger' : 'success'"
-                    (click)="toggleActivarCategoria(categoria)" 
-                    [title]="categoria.activo ? 'Desactivar' : 'Activar'">
-              <span class="icon">{{ categoria.activo ? '❌' : '✅' }}</span>
-            </button>
-            <button class="btn-icon danger" (click)="eliminarCategoria(categoria)" title="Eliminar">
-              <span class="icon">🗑️</span>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<div class="categories-table" *ngIf="categorias.length > 0; else sinCategorias">
+  <div class="table-header">
+    <span>Nombre</span>
+    <span>Descripción</span>
+    <span>Estado</span>
+    <span>Creado</span>
+    <span></span>
+  </div>
+  <div *ngFor="let categoria of categoriasFiltradas" class="category-row">
+    <span class="name">{{ categoria.nombre }}</span>
+    <span class="description">{{ categoria.descripcion || 'Sin descripción' }}</span>
+    <span class="status" [class.active]="categoria.activo" [class.inactive]="!categoria.activo">
+      {{ categoria.activo ? 'Activa' : 'Inactiva' }}
+    </span>
+    <span class="date">{{ categoria.fechaCreacion | date:'dd/MM/yyyy' }}</span>
+    <div class="actions">
+      <button class="btn-edit" (click)="abrirModalEditar(categoria)">✏️</button>
+      <button class="btn-toggle" [class.danger]="categoria.activo" [class.success]="!categoria.activo" (click)="abrirConfirmacionToggle(categoria)">
+        {{ categoria.activo ? '⏸️' : '▶️' }}
+      </button>
+      <button class="btn-delete" (click)="abrirConfirmacionEliminar(categoria)">×</button>
+    </div>
   </div>
 </div>
 
@@ -76,59 +52,112 @@
   </div>
 </ng-template>
 
-<!-- Modal -->
+<!-- Modal de Crear/Editar -->
 <div class="modal" *ngIf="mostrarModal">
-  <div class="modal-backdrop" (click)="cerrarModal()"></div>
   <div class="modal-content">
     <div class="modal-header">
-      <h3>{{ modoEdicion ? 'Editar Categoría' : 'Nueva Categoría' }}</h3>
-      <button class="btn-icon" (click)="cerrarModal()">
-        <span class="icon">✖️</span>
-      </button>
+      <span>{{ modoEdicion ? 'Editar' : 'Nueva' }} Categoría</span>
+      <button (click)="cerrarModal()">&times;</button>
     </div>
 
     <div class="modal-body">
       <form [formGroup]="categoriaForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="nombre">Nombre</label>
-            <input 
-              id="nombre"
-              type="text" 
-              formControlName="nombre"
-              [class.error]="nombreControl?.invalid && nombreControl?.touched"
-            >
-            <span class="error-message" *ngIf="nombreControl?.invalid && nombreControl?.touched">
-              El nombre es requerido
-            </span>
-          </div>
+        <div class="form-field">
+          <label for="nombre">Nombre</label>
+          <input 
+            id="nombre"
+            type="text" 
+            formControlName="nombre"
+            [class.error]="nombreControl?.invalid && nombreControl?.touched"
+          >
+          <span class="error" *ngIf="nombreControl?.invalid && nombreControl?.touched">
+            Requerido
+          </span>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="descripcion">Descripción</label>
-            <input 
-              id="descripcion"
-              type="text"
-              formControlName="descripcion"
-              placeholder="Ingrese una descripción de la categoría"
-            >
-          </div>
+        <div class="form-field">
+          <label for="descripcion">Descripción</label>
+          <input 
+            id="descripcion"
+            type="text"
+            formControlName="descripcion"
+            placeholder="Descripción de la categoría"
+          >
         </div>
       </form>
     </div>
 
-    <div class="modal-footer">
-      <button type="button" class="btn-secondary" (click)="cerrarModal()">
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cerrarModal()">Cancelar</button>
+      <button 
+        class="btn-save" 
+        (click)="guardarCategoria()"
+        [disabled]="guardando"
+      >
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación Eliminar -->
+<div class="modal" *ngIf="mostrarConfirmacionEliminar">
+  <div class="modal-content confirmation">
+    <div class="modal-header">
+      <span>Eliminar Categoría</span>
+    </div>
+    <div class="confirmation-content">
+      <p>¿Estás seguro de que quieres eliminar esta categoría?</p>
+      <div class="category-info" *ngIf="categoriaSeleccionada">
+        <div class="info-item">
+          <span class="label">Nombre:</span>
+          <span class="value">{{ categoriaSeleccionada.nombre }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Estado:</span>
+          <span class="value">{{ categoriaSeleccionada.activo ? 'Activa' : 'Inactiva' }}</span>
+        </div>
+      </div>
+      <div class="warning">
+        Esta acción no se puede deshacer.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cerrarConfirmacionEliminar()">
         Cancelar
       </button>
-      <button 
-        type="button" 
-        class="btn-primary" 
-        (click)="guardarCategoria()"
-        [disabled]="categoriaForm.invalid || guardando"
-      >
-        {{ guardando ? 'Guardando...' : (modoEdicion ? 'Actualizar' : 'Guardar') }}
+      <button class="btn-confirm-final danger" (click)="confirmarEliminar()">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación Toggle -->
+<div class="modal" *ngIf="mostrarConfirmacionToggle">
+  <div class="modal-content confirmation">
+    <div class="modal-header">
+      <span>{{ categoriaSeleccionada?.activo ? 'Desactivar' : 'Activar' }} Categoría</span>
+    </div>
+    <div class="confirmation-content">
+      <p>¿Estás seguro de que quieres {{ categoriaSeleccionada?.activo ? 'desactivar' : 'activar' }} esta categoría?</p>
+      <div class="category-info" *ngIf="categoriaSeleccionada">
+        <div class="info-item">
+          <span class="label">Categoría:</span>
+          <span class="value">{{ categoriaSeleccionada.nombre }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Estado actual:</span>
+          <span class="value">{{ categoriaSeleccionada.activo ? 'Activa' : 'Inactiva' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cerrarConfirmacionToggle()">
+        Cancelar
+      </button>
+      <button class="btn-confirm-final" [class.danger]="categoriaSeleccionada?.activo" (click)="confirmarToggle()">
+        {{ categoriaSeleccionada?.activo ? 'Desactivar' : 'Activar' }}
       </button>
     </div>
   </div>
